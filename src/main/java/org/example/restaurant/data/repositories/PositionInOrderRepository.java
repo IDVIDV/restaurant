@@ -1,7 +1,9 @@
 package org.example.restaurant.data.repositories;
 
 import org.example.restaurant.data.ConnectionFactory;
+import org.example.restaurant.data.entities.Order;
 import org.example.restaurant.data.entities.Position;
+import org.example.restaurant.data.entities.PositionInOrder;
 
 import java.sql.Connection;
 import java.sql.ResultSet;
@@ -11,51 +13,46 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-public class PositionRepository {
+public class PositionInOrderRepository {
 
     private final String tableName;
     private final ConnectionFactory connectionFactory;
+    private final PositionRepository positionRepository;
+    private final OrderRepository orderRepository;
 
-    public PositionRepository(String tableName, ConnectionFactory connectionFactory) {
+    public PositionInOrderRepository(String tableName, ConnectionFactory connectionFactory,
+                                     PositionRepository positionRepository, OrderRepository orderRepository) {
         this.tableName = tableName;
         this.connectionFactory = connectionFactory;
+        this.positionRepository = positionRepository;
+        this.orderRepository = orderRepository;
     }
 
-    protected Map<String, String> getColumnValuesMap(Position position) {
+    protected Map<String, String> getColumnValuesMap(PositionInOrder positionInOrder) {
         return Map.of(
-                "position_name", RepositoryUtils.getValueInQuotes(position.getPositionName()),
-                "price", position.getPrice().toString(),
-                "weight", Double.toString(position.getWeight()),
-                "protein", Double.toString(position.getProtein()),
-                "fat", Double.toString(position.getFat()),
-                "carbohydrate", Double.toString(position.getCarbohydrate()),
-                "vegan", Boolean.toString(position.isVegan()),
-                "ingredients", RepositoryUtils.getValueInQuotes(position.getIngredients())
+                "position_id", Long.toString(positionInOrder.getPosition().getId()),
+                "order_id", Long.toString(positionInOrder.getOrder().getId()),
+                "position_count", Integer.toString(positionInOrder.getPositionCount())
         );
     }
 
-    protected Position mapEntityFromResultSet(ResultSet resultSet) {
-        Position position = new Position();
+    protected PositionInOrder mapEntityFromResultSet(ResultSet resultSet) {
+        PositionInOrder positionInOrder = new PositionInOrder();
 
         try {
-            position.setId(resultSet.getLong("id_position"));
-            position.setPositionName(resultSet.getString("position_name"));
-            position.setPrice(resultSet.getBigDecimal("price"));
-            position.setWeight(resultSet.getDouble("weight"));
-            position.setProtein(resultSet.getDouble("protein"));
-            position.setFat(resultSet.getDouble("fat"));
-            position.setCarbohydrate(resultSet.getDouble("carbohydrate"));
-            position.setVegan(resultSet.getBoolean("vegan"));
-            position.setIngredients(resultSet.getString("ingredients"));
+            positionInOrder.setId(resultSet.getLong("id_pio"));
+            positionInOrder.setPosition(positionRepository.getById(resultSet.getLong("position_id")));
+            positionInOrder.setOrder(orderRepository.getById(resultSet.getLong("order_id")));
+            positionInOrder.setPositionCount(resultSet.getInt("position_count"));
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
 
-        return position;
+        return positionInOrder;
     }
 
-    public List<Position> getAll() {
-        List<Position> result = new ArrayList<>();
+    public List<PositionInOrder> getAll() {
+        List<PositionInOrder> result = new ArrayList<>();
 
         try (Connection connection = connectionFactory.getConnection()) {
             Statement statement = connection.createStatement();
@@ -72,13 +69,13 @@ public class PositionRepository {
         return result;
     }
 
-    public Position getById(long id) {
-        Position result = null;
+    public PositionInOrder getById(long id) {
+        PositionInOrder result = null;
 
         try (Connection connection = connectionFactory.getConnection()) {
             Statement statement = connection.createStatement();
             ResultSet resultSet = statement.executeQuery(
-                    RepositoryUtils.buildGetByIdQuery(id, tableName, "id_position")
+                    RepositoryUtils.buildGetByIdQuery(id, tableName, "id_pio")
             );
 
             if (resultSet.next()) {
@@ -93,20 +90,21 @@ public class PositionRepository {
         return result;
     }
 
-    public void add(Position position) {
+    public void add(PositionInOrder positionInOrder) {
         try (Connection connection = connectionFactory.getConnection()) {
             Statement statement = connection.createStatement();
-            statement.executeUpdate(RepositoryUtils.buildAddQuery(tableName, getColumnValuesMap(position)));
+            statement.executeUpdate(RepositoryUtils.buildAddQuery(tableName, getColumnValuesMap(positionInOrder)));
+
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
     }
 
-    public void update(Position position) {
+    public void update(PositionInOrder positionInOrder) {
         try (Connection connection = connectionFactory.getConnection()) {
             Statement statement = connection.createStatement();
-            statement.executeUpdate(RepositoryUtils.buildUpdateQuery(position.getId(), tableName,
-                    "id_position", getColumnValuesMap(position)));
+            statement.executeUpdate(RepositoryUtils.buildUpdateQuery(positionInOrder.getId(), tableName,
+                    "id_pio", getColumnValuesMap(positionInOrder)));
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
@@ -115,7 +113,7 @@ public class PositionRepository {
     public void delete(long id) {
         try (Connection connection = connectionFactory.getConnection()) {
             Statement statement = connection.createStatement();
-            statement.executeUpdate(RepositoryUtils.buildDeleteQuery(id, tableName, "id_position"));
+            statement.executeUpdate(RepositoryUtils.buildDeleteQuery(id, tableName, "id_pio"));
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }

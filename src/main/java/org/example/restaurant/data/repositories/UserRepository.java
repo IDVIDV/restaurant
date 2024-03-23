@@ -1,7 +1,8 @@
 package org.example.restaurant.data.repositories;
 
 import org.example.restaurant.data.ConnectionFactory;
-import org.example.restaurant.data.entities.Position;
+import org.example.restaurant.data.entities.Table;
+import org.example.restaurant.data.entities.User;
 
 import java.sql.Connection;
 import java.sql.ResultSet;
@@ -11,51 +12,43 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-public class PositionRepository {
+public class UserRepository {
 
     private final String tableName;
     private final ConnectionFactory connectionFactory;
 
-    public PositionRepository(String tableName, ConnectionFactory connectionFactory) {
+    public UserRepository(String tableName, ConnectionFactory connectionFactory) {
         this.tableName = tableName;
         this.connectionFactory = connectionFactory;
     }
 
-    protected Map<String, String> getColumnValuesMap(Position position) {
+    protected Map<String, String> getColumnValuesMap(User user) {
         return Map.of(
-                "position_name", RepositoryUtils.getValueInQuotes(position.getPositionName()),
-                "price", position.getPrice().toString(),
-                "weight", Double.toString(position.getWeight()),
-                "protein", Double.toString(position.getProtein()),
-                "fat", Double.toString(position.getFat()),
-                "carbohydrate", Double.toString(position.getCarbohydrate()),
-                "vegan", Boolean.toString(position.isVegan()),
-                "ingredients", RepositoryUtils.getValueInQuotes(position.getIngredients())
+                "login", RepositoryUtils.getValueInQuotes(user.getLogin()),
+                "password", user.getPassword(),
+                "phone_number", user.getPhoneNumber(),
+                "role", user.getRole()
         );
     }
 
-    protected Position mapEntityFromResultSet(ResultSet resultSet) {
-        Position position = new Position();
+    protected User mapEntityFromResultSet(ResultSet resultSet) {
+        User user = new User();
 
         try {
-            position.setId(resultSet.getLong("id_position"));
-            position.setPositionName(resultSet.getString("position_name"));
-            position.setPrice(resultSet.getBigDecimal("price"));
-            position.setWeight(resultSet.getDouble("weight"));
-            position.setProtein(resultSet.getDouble("protein"));
-            position.setFat(resultSet.getDouble("fat"));
-            position.setCarbohydrate(resultSet.getDouble("carbohydrate"));
-            position.setVegan(resultSet.getBoolean("vegan"));
-            position.setIngredients(resultSet.getString("ingredients"));
+            user.setId(resultSet.getLong("id_user"));
+            user.setLogin(resultSet.getString("login"));
+            user.setPassword(resultSet.getString("password"));
+            user.setPhoneNumber(resultSet.getString("phone_number"));
+            user.setRole(resultSet.getString("role"));
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
 
-        return position;
+        return user;
     }
 
-    public List<Position> getAll() {
-        List<Position> result = new ArrayList<>();
+    public List<User> getAll() {
+        List<User> result = new ArrayList<>();
 
         try (Connection connection = connectionFactory.getConnection()) {
             Statement statement = connection.createStatement();
@@ -72,13 +65,13 @@ public class PositionRepository {
         return result;
     }
 
-    public Position getById(long id) {
-        Position result = null;
+    public User getById(long id) {
+        User result = null;
 
         try (Connection connection = connectionFactory.getConnection()) {
             Statement statement = connection.createStatement();
             ResultSet resultSet = statement.executeQuery(
-                    RepositoryUtils.buildGetByIdQuery(id, tableName, "id_position")
+                    RepositoryUtils.buildGetByIdQuery(id, tableName, "id_user")
             );
 
             if (resultSet.next()) {
@@ -93,20 +86,21 @@ public class PositionRepository {
         return result;
     }
 
-    public void add(Position position) {
+    public void add(User user) {
         try (Connection connection = connectionFactory.getConnection()) {
             Statement statement = connection.createStatement();
-            statement.executeUpdate(RepositoryUtils.buildAddQuery(tableName, getColumnValuesMap(position)));
+            statement.executeUpdate(RepositoryUtils.buildAddQuery(tableName, getColumnValuesMap(user)));
+
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
     }
 
-    public void update(Position position) {
+    public void update(User user) {
         try (Connection connection = connectionFactory.getConnection()) {
             Statement statement = connection.createStatement();
-            statement.executeUpdate(RepositoryUtils.buildUpdateQuery(position.getId(), tableName,
-                    "id_position", getColumnValuesMap(position)));
+            statement.executeUpdate(RepositoryUtils.buildUpdateQuery(user.getId(), tableName,
+                    "id_user", getColumnValuesMap(user)));
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
@@ -115,9 +109,10 @@ public class PositionRepository {
     public void delete(long id) {
         try (Connection connection = connectionFactory.getConnection()) {
             Statement statement = connection.createStatement();
-            statement.executeUpdate(RepositoryUtils.buildDeleteQuery(id, tableName, "id_position"));
+            statement.executeUpdate(RepositoryUtils.buildDeleteQuery(id, tableName, "id_user"));
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
     }
 }
+

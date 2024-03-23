@@ -1,7 +1,9 @@
 package org.example.restaurant.data.repositories;
 
 import org.example.restaurant.data.ConnectionFactory;
+import org.example.restaurant.data.entities.Order;
 import org.example.restaurant.data.entities.Position;
+import org.example.restaurant.data.entities.User;
 
 import java.sql.Connection;
 import java.sql.ResultSet;
@@ -11,51 +13,46 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
-public class PositionRepository {
+public class OrderRepository {
 
     private final String tableName;
     private final ConnectionFactory connectionFactory;
+    private final UserRepository userRepository;
+    private final TableRepository tableRepository;
 
-    public PositionRepository(String tableName, ConnectionFactory connectionFactory) {
+    public OrderRepository(String tableName, ConnectionFactory connectionFactory,
+                           UserRepository userRepository, TableRepository tableRepository) {
         this.tableName = tableName;
         this.connectionFactory = connectionFactory;
+        this.userRepository = userRepository;
+        this.tableRepository = tableRepository;
     }
 
-    protected Map<String, String> getColumnValuesMap(Position position) {
+    protected Map<String, String> getColumnValuesMap(Order order) {
         return Map.of(
-                "position_name", RepositoryUtils.getValueInQuotes(position.getPositionName()),
-                "price", position.getPrice().toString(),
-                "weight", Double.toString(position.getWeight()),
-                "protein", Double.toString(position.getProtein()),
-                "fat", Double.toString(position.getFat()),
-                "carbohydrate", Double.toString(position.getCarbohydrate()),
-                "vegan", Boolean.toString(position.isVegan()),
-                "ingredients", RepositoryUtils.getValueInQuotes(position.getIngredients())
+                "user_id", Long.toString(order.getUser().getId()),
+                "table_id", Long.toString(order.getTable().getId()),
+                "order_date", RepositoryUtils.getValueInQuotes(order.getOrderDate().toString())
         );
     }
 
-    protected Position mapEntityFromResultSet(ResultSet resultSet) {
-        Position position = new Position();
+    protected Order mapEntityFromResultSet(ResultSet resultSet) {
+        Order order = new Order();
 
         try {
-            position.setId(resultSet.getLong("id_position"));
-            position.setPositionName(resultSet.getString("position_name"));
-            position.setPrice(resultSet.getBigDecimal("price"));
-            position.setWeight(resultSet.getDouble("weight"));
-            position.setProtein(resultSet.getDouble("protein"));
-            position.setFat(resultSet.getDouble("fat"));
-            position.setCarbohydrate(resultSet.getDouble("carbohydrate"));
-            position.setVegan(resultSet.getBoolean("vegan"));
-            position.setIngredients(resultSet.getString("ingredients"));
+            order.setId(resultSet.getLong("id_order"));
+            order.setUser(userRepository.getById(resultSet.getLong("user_id")));
+            order.setTable(tableRepository.getById(resultSet.getLong("table_id")));
+            order.setOrderDate(resultSet.getDate("order_date"));
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
 
-        return position;
+        return order;
     }
 
-    public List<Position> getAll() {
-        List<Position> result = new ArrayList<>();
+    public List<Order> getAll() {
+        List<Order> result = new ArrayList<>();
 
         try (Connection connection = connectionFactory.getConnection()) {
             Statement statement = connection.createStatement();
@@ -72,13 +69,13 @@ public class PositionRepository {
         return result;
     }
 
-    public Position getById(long id) {
-        Position result = null;
+    public Order getById(long id) {
+        Order result = null;
 
         try (Connection connection = connectionFactory.getConnection()) {
             Statement statement = connection.createStatement();
             ResultSet resultSet = statement.executeQuery(
-                    RepositoryUtils.buildGetByIdQuery(id, tableName, "id_position")
+                    RepositoryUtils.buildGetByIdQuery(id, tableName, "id_order")
             );
 
             if (resultSet.next()) {
@@ -93,20 +90,21 @@ public class PositionRepository {
         return result;
     }
 
-    public void add(Position position) {
+    public void add(Order order) {
         try (Connection connection = connectionFactory.getConnection()) {
             Statement statement = connection.createStatement();
-            statement.executeUpdate(RepositoryUtils.buildAddQuery(tableName, getColumnValuesMap(position)));
+            statement.executeUpdate(RepositoryUtils.buildAddQuery(tableName, getColumnValuesMap(order)));
+
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
     }
 
-    public void update(Position position) {
+    public void update(Order order) {
         try (Connection connection = connectionFactory.getConnection()) {
             Statement statement = connection.createStatement();
-            statement.executeUpdate(RepositoryUtils.buildUpdateQuery(position.getId(), tableName,
-                    "id_position", getColumnValuesMap(position)));
+            statement.executeUpdate(RepositoryUtils.buildUpdateQuery(order.getId(), tableName,
+                    "id_order", getColumnValuesMap(order)));
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
@@ -115,7 +113,7 @@ public class PositionRepository {
     public void delete(long id) {
         try (Connection connection = connectionFactory.getConnection()) {
             Statement statement = connection.createStatement();
-            statement.executeUpdate(RepositoryUtils.buildDeleteQuery(id, tableName, "id_position"));
+            statement.executeUpdate(RepositoryUtils.buildDeleteQuery(id, tableName, "id_order"));
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
