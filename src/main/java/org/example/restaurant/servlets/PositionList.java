@@ -1,11 +1,12 @@
 package org.example.restaurant.servlets;
 
 import jakarta.servlet.annotation.WebServlet;
+import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import org.example.restaurant.data.ConnectionFactory;
-import org.example.restaurant.data.entities.Entity;
+
+import org.example.restaurant.data.ConnectionProvider;
 import org.example.restaurant.data.entities.Position;
 import org.example.restaurant.data.repositories.PositionRepository;
 
@@ -20,11 +21,13 @@ public class PositionList extends HttpServlet {
 
     @Override
     public void init() {
-        positionRepository = new PositionRepository("position", new ConnectionFactory());
+        positionRepository = new PositionRepository("position", ConnectionProvider.getInstance());
     }
 
     @Override
     public void doGet(HttpServletRequest request, HttpServletResponse response) throws IOException {
+        Cookie[]  cookies = request.getCookies();
+
         response.setContentType("text/html");
 
         List<Position> positions = positionRepository.getAll();

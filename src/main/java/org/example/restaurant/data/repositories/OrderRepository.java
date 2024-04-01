@@ -1,9 +1,7 @@
 package org.example.restaurant.data.repositories;
 
-import org.example.restaurant.data.ConnectionFactory;
+import org.example.restaurant.data.ConnectionProvider;
 import org.example.restaurant.data.entities.Order;
-import org.example.restaurant.data.entities.Position;
-import org.example.restaurant.data.entities.User;
 
 import java.sql.Connection;
 import java.sql.ResultSet;
@@ -16,14 +14,14 @@ import java.util.Map;
 public class OrderRepository {
 
     private final String tableName;
-    private final ConnectionFactory connectionFactory;
+    private final ConnectionProvider connectionProvider;
     private final UserRepository userRepository;
     private final TableRepository tableRepository;
 
-    public OrderRepository(String tableName, ConnectionFactory connectionFactory,
+    public OrderRepository(String tableName, ConnectionProvider connectionProvider,
                            UserRepository userRepository, TableRepository tableRepository) {
         this.tableName = tableName;
-        this.connectionFactory = connectionFactory;
+        this.connectionProvider = connectionProvider;
         this.userRepository = userRepository;
         this.tableRepository = tableRepository;
     }
@@ -54,7 +52,7 @@ public class OrderRepository {
     public List<Order> getAll() {
         List<Order> result = new ArrayList<>();
 
-        try (Connection connection = connectionFactory.getConnection()) {
+        try (Connection connection = connectionProvider.getConnection()) {
             Statement statement = connection.createStatement();
             ResultSet resultSet = statement.executeQuery(RepositoryUtils.buildGetAllQuery(tableName));
 
@@ -72,7 +70,7 @@ public class OrderRepository {
     public Order getById(long id) {
         Order result = null;
 
-        try (Connection connection = connectionFactory.getConnection()) {
+        try (Connection connection = connectionProvider.getConnection()) {
             Statement statement = connection.createStatement();
             ResultSet resultSet = statement.executeQuery(
                     RepositoryUtils.buildGetByIdQuery(id, tableName, "id_order")
@@ -91,7 +89,7 @@ public class OrderRepository {
     }
 
     public void add(Order order) {
-        try (Connection connection = connectionFactory.getConnection()) {
+        try (Connection connection = connectionProvider.getConnection()) {
             Statement statement = connection.createStatement();
             statement.executeUpdate(RepositoryUtils.buildAddQuery(tableName, getColumnValuesMap(order)));
 
@@ -101,7 +99,7 @@ public class OrderRepository {
     }
 
     public void update(Order order) {
-        try (Connection connection = connectionFactory.getConnection()) {
+        try (Connection connection = connectionProvider.getConnection()) {
             Statement statement = connection.createStatement();
             statement.executeUpdate(RepositoryUtils.buildUpdateQuery(order.getId(), tableName,
                     "id_order", getColumnValuesMap(order)));
@@ -111,7 +109,7 @@ public class OrderRepository {
     }
 
     public void delete(long id) {
-        try (Connection connection = connectionFactory.getConnection()) {
+        try (Connection connection = connectionProvider.getConnection()) {
             Statement statement = connection.createStatement();
             statement.executeUpdate(RepositoryUtils.buildDeleteQuery(id, tableName, "id_order"));
         } catch (SQLException e) {

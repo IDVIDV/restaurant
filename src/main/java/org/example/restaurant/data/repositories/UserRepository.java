@@ -1,7 +1,6 @@
 package org.example.restaurant.data.repositories;
 
-import org.example.restaurant.data.ConnectionFactory;
-import org.example.restaurant.data.entities.Table;
+import org.example.restaurant.data.ConnectionProvider;
 import org.example.restaurant.data.entities.User;
 
 import java.sql.Connection;
@@ -15,11 +14,11 @@ import java.util.Map;
 public class UserRepository {
 
     private final String tableName;
-    private final ConnectionFactory connectionFactory;
+    private final ConnectionProvider connectionProvider;
 
-    public UserRepository(String tableName, ConnectionFactory connectionFactory) {
+    public UserRepository(String tableName, ConnectionProvider connectionProvider) {
         this.tableName = tableName;
-        this.connectionFactory = connectionFactory;
+        this.connectionProvider = connectionProvider;
     }
 
     protected Map<String, String> getColumnValuesMap(User user) {
@@ -50,7 +49,7 @@ public class UserRepository {
     public List<User> getAll() {
         List<User> result = new ArrayList<>();
 
-        try (Connection connection = connectionFactory.getConnection()) {
+        try (Connection connection = connectionProvider.getConnection()) {
             Statement statement = connection.createStatement();
             ResultSet resultSet = statement.executeQuery(RepositoryUtils.buildGetAllQuery(tableName));
 
@@ -68,7 +67,7 @@ public class UserRepository {
     public User getById(long id) {
         User result = null;
 
-        try (Connection connection = connectionFactory.getConnection()) {
+        try (Connection connection = connectionProvider.getConnection()) {
             Statement statement = connection.createStatement();
             ResultSet resultSet = statement.executeQuery(
                     RepositoryUtils.buildGetByIdQuery(id, tableName, "id_user")
@@ -87,7 +86,7 @@ public class UserRepository {
     }
 
     public void add(User user) {
-        try (Connection connection = connectionFactory.getConnection()) {
+        try (Connection connection = connectionProvider.getConnection()) {
             Statement statement = connection.createStatement();
             statement.executeUpdate(RepositoryUtils.buildAddQuery(tableName, getColumnValuesMap(user)));
 
@@ -97,7 +96,7 @@ public class UserRepository {
     }
 
     public void update(User user) {
-        try (Connection connection = connectionFactory.getConnection()) {
+        try (Connection connection = connectionProvider.getConnection()) {
             Statement statement = connection.createStatement();
             statement.executeUpdate(RepositoryUtils.buildUpdateQuery(user.getId(), tableName,
                     "id_user", getColumnValuesMap(user)));
@@ -107,7 +106,7 @@ public class UserRepository {
     }
 
     public void delete(long id) {
-        try (Connection connection = connectionFactory.getConnection()) {
+        try (Connection connection = connectionProvider.getConnection()) {
             Statement statement = connection.createStatement();
             statement.executeUpdate(RepositoryUtils.buildDeleteQuery(id, tableName, "id_user"));
         } catch (SQLException e) {
