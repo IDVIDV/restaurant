@@ -4,30 +4,25 @@ import org.example.restaurant.data.ConnectionProvider;
 import org.example.restaurant.data.entities.User;
 
 import java.sql.Connection;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 public class UserRepository {
-
-    private final String tableName;
+    private static final String TABLE_NAME = "user";
+    private static final String SELECT_ALL_QUERY = "SELECT * FROM " + TABLE_NAME;
+    private static final String SELECT_BY_ID_QUERY = "SELECT * FROM " + TABLE_NAME + " WHERE id_user = (?)";
+    private static final String ADD_QUERY = "INSERT INTO " + TABLE_NAME + " VALUES (DEFAULT,(?),(?),(?),'user')";
+    private static final String UPDATE_QUERY = "UPDATE " + TABLE_NAME + " SET login = (?), password = (?)," +
+            "phone_number = (?), role = 'user' WHERE id_user = (?)";
+    private static final String DELETE_QUERY = "DELETE FROM " + TABLE_NAME + " WHERE id_user = (?)";
     private final ConnectionProvider connectionProvider;
 
-    public UserRepository(String tableName, ConnectionProvider connectionProvider) {
-        this.tableName = tableName;
+    public UserRepository(ConnectionProvider connectionProvider) {
         this.connectionProvider = connectionProvider;
-    }
-
-    protected Map<String, String> getColumnValuesMap(User user) {
-        return Map.of(
-                "login", RepositoryUtils.getValueInQuotes(user.getLogin()),
-                "password", user.getPassword(),
-                "phone_number", user.getPhoneNumber(),
-                "role", user.getRole()
-        );
     }
 
     protected User mapEntityFromResultSet(ResultSet resultSet) {
@@ -46,12 +41,18 @@ public class UserRepository {
         return user;
     }
 
+    protected void prepareStatement(User user, PreparedStatement statement) throws SQLException {
+        statement.setString(1, user.getLogin());
+        statement.setString(2, user.getPassword());
+        statement.setString(3, user.getPhoneNumber());
+    }
+
     public List<User> getAll() {
         List<User> result = new ArrayList<>();
 
         try (Connection connection = connectionProvider.getConnection()) {
-            Statement statement = connection.createStatement();
-            ResultSet resultSet = statement.executeQuery(RepositoryUtils.buildGetAllQuery(tableName));
+            PreparedStatement statement = connection.prepareStatement(SELECT_ALL_QUERY);
+            ResultSet resultSet = statement.executeQuery();
 
             while (resultSet.next()) {
                 result.add(mapEntityFromResultSet(resultSet));
@@ -68,10 +69,11 @@ public class UserRepository {
         User result = null;
 
         try (Connection connection = connectionProvider.getConnection()) {
-            Statement statement = connection.createStatement();
-            ResultSet resultSet = statement.executeQuery(
-                    RepositoryUtils.buildGetByIdQuery(id, tableName, "id_user")
-            );
+            PreparedStatement statement = connection.prepareStatement(SELECT_BY_ID_QUERY);
+
+            statement.setLong(1, id);
+
+            ResultSet resultSet = statement.executeQuery();
 
             if (resultSet.next()) {
                 result = mapEntityFromResultSet(resultSet);
@@ -85,30 +87,67 @@ public class UserRepository {
         return result;
     }
 
-    public void add(User user) {
+    public User getByLogin(String login) {
+        User result = null;
+
+
         try (Connection connection = connectionProvider.getConnection()) {
             Statement statement = connection.createStatement();
-            statement.executeUpdate(RepositoryUtils.buildAddQuery(tableName, getColumnValuesMap(user)));
+            ResultSet resultSet = statement.executeQuery("SELECT * FROM \"user\" WHERE login = '" + login + "'");
+
+            if (resultSet.next()) {
+                result = mapEntityFromResultSet(resultSet);
+            }
+            //TODO: добавить обработку случая, когда нет сущности
 
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
+
+        return result;
     }
 
-    public void update(User user) {
+    public User add(User user) {
         try (Connection connection = connectionProvider.getConnection()) {
-            Statement statement = connection.createStatement();
-            statement.executeUpdate(RepositoryUtils.buildUpdateQuery(user.getId(), tableName,
-                    "id_user", getColumnValuesMap(user)));
+            PreparedStatement statement = connection.prepareStatement(ADD_QUERY, Statement.RETURN_GENERATED_KEYS);
+
+            prepareStatement(user, statement);
+
+            statement.executeUpdate();
+
+            ResultSet generatedKeys = statement.getGeneratedKeys();
+            if (generatedKeys.next()) {
+                user.setId(generatedKeys.getLong("id_user"));
+            }
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
+
+        return user;
     }
 
-    public void delete(long id) {
+    public User update(User user) {
         try (Connection connection = connectionProvider.getConnection()) {
-            Statement statement = connection.createStatement();
-            statement.executeUpdate(RepositoryUtils.buildDeleteQuery(id, tableName, "id_user"));
+            PreparedStatement statement = connection.prepareStatement(UPDATE_QUERY);
+
+            prepareStatement(user, statement);
+            statement.setLong(4, user.getId());
+
+            statement.executeUpdate();
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+
+        return user;
+    }
+
+    public boolean delete(long id) {
+        try (Connection connection = connectionProvider.getConnection()) {
+            PreparedStatement statement = connection.prepareStatement(DELETE_QUERY);
+
+            statement.setLong(1, id);
+
+            return statement.executeUpdate() > 0;
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }

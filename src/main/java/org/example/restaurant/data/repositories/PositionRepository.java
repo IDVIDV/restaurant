@@ -4,34 +4,26 @@ import org.example.restaurant.data.ConnectionProvider;
 import org.example.restaurant.data.entities.Position;
 
 import java.sql.Connection;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 public class PositionRepository {
-
-    private final String tableName;
+    private static final String TABLE_NAME = "position";
+    private static final String SELECT_ALL_QUERY = "SELECT * FROM " + TABLE_NAME;
+    private static final String SELECT_BY_ID_QUERY = "SELECT * FROM " + TABLE_NAME + " WHERE id_position = (?)";
+    private static final String ADD_QUERY = "INSERT INTO " + TABLE_NAME + " VALUES (DEFAULT,(?),(?),(?),(?),(?),(?),(?),(?))";
+    private static final String UPDATE_QUERY = "UPDATE " + TABLE_NAME + " SET position_name = (?), " +
+            "price = (?), weight = (?), protein = (?), fat = (?), carbohydrate = (?), vegan = (?), ingredients = (?) " +
+            "WHERE id_position = (?)";
+    private static final String DELETE_QUERY = "DELETE FROM " + TABLE_NAME + " WHERE id_position = (?)";
     private final ConnectionProvider connectionProvider;
 
-    public PositionRepository(String tableName, ConnectionProvider connectionProvider) {
-        this.tableName = tableName;
+    public PositionRepository(ConnectionProvider connectionProvider) {
         this.connectionProvider = connectionProvider;
-    }
-
-    protected Map<String, String> getColumnValuesMap(Position position) {
-        return Map.of(
-                "position_name", RepositoryUtils.getValueInQuotes(position.getPositionName()),
-                "price", position.getPrice().toString(),
-                "weight", Double.toString(position.getWeight()),
-                "protein", Double.toString(position.getProtein()),
-                "fat", Double.toString(position.getFat()),
-                "carbohydrate", Double.toString(position.getCarbohydrate()),
-                "vegan", Boolean.toString(position.isVegan()),
-                "ingredients", RepositoryUtils.getValueInQuotes(position.getIngredients())
-        );
     }
 
     protected Position mapEntityFromResultSet(ResultSet resultSet) {
@@ -54,12 +46,23 @@ public class PositionRepository {
         return position;
     }
 
+    protected void prepareStatement(Position position, PreparedStatement statement) throws SQLException {
+        statement.setString(1, position.getPositionName());
+        statement.setBigDecimal(2, position.getPrice());
+        statement.setDouble(3, position.getWeight());
+        statement.setDouble(4, position.getProtein());
+        statement.setDouble(5, position.getFat());
+        statement.setDouble(6, position.getCarbohydrate());
+        statement.setBoolean(7, position.isVegan());
+        statement.setString(8, position.getIngredients());
+    }
+
     public List<Position> getAll() {
         List<Position> result = new ArrayList<>();
 
         try (Connection connection = connectionProvider.getConnection()) {
-            Statement statement = connection.createStatement();
-            ResultSet resultSet = statement.executeQuery(RepositoryUtils.buildGetAllQuery(tableName));
+            PreparedStatement statement = connection.prepareStatement(SELECT_ALL_QUERY);
+            ResultSet resultSet = statement.executeQuery();
 
             while (resultSet.next()) {
                 result.add(mapEntityFromResultSet(resultSet));
@@ -76,10 +79,11 @@ public class PositionRepository {
         Position result = null;
 
         try (Connection connection = connectionProvider.getConnection()) {
-            Statement statement = connection.createStatement();
-            ResultSet resultSet = statement.executeQuery(
-                    RepositoryUtils.buildGetByIdQuery(id, tableName, "id_position")
-            );
+            PreparedStatement statement = connection.prepareStatement(SELECT_BY_ID_QUERY);
+
+            statement.setLong(1, id);
+
+            ResultSet resultSet = statement.executeQuery();
 
             if (resultSet.next()) {
                 result = mapEntityFromResultSet(resultSet);
@@ -93,29 +97,48 @@ public class PositionRepository {
         return result;
     }
 
-    public void add(Position position) {
+    public Position add(Position position) {
         try (Connection connection = connectionProvider.getConnection()) {
-            Statement statement = connection.createStatement();
-            statement.executeUpdate(RepositoryUtils.buildAddQuery(tableName, getColumnValuesMap(position)));
+            PreparedStatement statement = connection.prepareStatement(ADD_QUERY, Statement.RETURN_GENERATED_KEYS);
+
+            prepareStatement(position, statement);
+
+            statement.executeUpdate();
+
+            ResultSet generatedKeys = statement.getGeneratedKeys();
+            if (generatedKeys.next()) {
+                position.setId(generatedKeys.getLong("id_position"));
+            }
+
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
+
+        return position;
     }
 
-    public void update(Position position) {
+    public Position update(Position position) {
         try (Connection connection = connectionProvider.getConnection()) {
-            Statement statement = connection.createStatement();
-            statement.executeUpdate(RepositoryUtils.buildUpdateQuery(position.getId(), tableName,
-                    "id_position", getColumnValuesMap(position)));
+            PreparedStatement statement = connection.prepareStatement(UPDATE_QUERY);
+
+            prepareStatement(position, statement);
+            statement.setLong(9, position.getId());
+
+            statement.executeUpdate();
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
+
+        return position;
     }
 
-    public void delete(long id) {
+    public boolean delete(long id) {
         try (Connection connection = connectionProvider.getConnection()) {
-            Statement statement = connection.createStatement();
-            statement.executeUpdate(RepositoryUtils.buildDeleteQuery(id, tableName, "id_position"));
+            PreparedStatement statement = connection.prepareStatement(DELETE_QUERY);
+
+            statement.setLong(1, id);
+
+            return statement.executeUpdate() > 0;
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }

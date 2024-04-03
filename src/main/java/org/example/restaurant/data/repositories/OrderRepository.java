@@ -4,34 +4,30 @@ import org.example.restaurant.data.ConnectionProvider;
 import org.example.restaurant.data.entities.Order;
 
 import java.sql.Connection;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 public class OrderRepository {
-
-    private final String tableName;
+    private static final String TABLE_NAME = "order";
+    private static final String SELECT_ALL_QUERY = "SELECT * FROM " + TABLE_NAME;
+    private static final String SELECT_BY_ID_QUERY = "SELECT * FROM " + TABLE_NAME + " WHERE id_order = (?)";
+    private static final String ADD_QUERY = "INSERT INTO " + TABLE_NAME + " VALUES (DEFAULT,(?),(?),(?))";
+    private static final String UPDATE_QUERY = "UPDATE " + TABLE_NAME + " SET user_id = (?), table_id = (?), " +
+            "order_date = (?) WHERE id_order = (?)";
+    private static final String DELETE_QUERY = "DELETE FROM " + TABLE_NAME + " WHERE id_order = (?)";
     private final ConnectionProvider connectionProvider;
     private final UserRepository userRepository;
     private final TableRepository tableRepository;
 
-    public OrderRepository(String tableName, ConnectionProvider connectionProvider,
+    public OrderRepository(ConnectionProvider connectionProvider,
                            UserRepository userRepository, TableRepository tableRepository) {
-        this.tableName = tableName;
         this.connectionProvider = connectionProvider;
         this.userRepository = userRepository;
         this.tableRepository = tableRepository;
-    }
-
-    protected Map<String, String> getColumnValuesMap(Order order) {
-        return Map.of(
-                "user_id", Long.toString(order.getUser().getId()),
-                "table_id", Long.toString(order.getTable().getId()),
-                "order_date", RepositoryUtils.getValueInQuotes(order.getOrderDate().toString())
-        );
     }
 
     protected Order mapEntityFromResultSet(ResultSet resultSet) {
@@ -49,12 +45,18 @@ public class OrderRepository {
         return order;
     }
 
+    protected void prepareStatement(Order order, PreparedStatement statement) throws SQLException {
+        statement.setLong(1, order.getUser().getId());
+        statement.setLong(2, order.getTable().getId());
+        statement.setDate(3, order.getOrderDate());
+    }
+
     public List<Order> getAll() {
         List<Order> result = new ArrayList<>();
 
         try (Connection connection = connectionProvider.getConnection()) {
-            Statement statement = connection.createStatement();
-            ResultSet resultSet = statement.executeQuery(RepositoryUtils.buildGetAllQuery(tableName));
+            PreparedStatement statement = connection.prepareStatement(SELECT_ALL_QUERY);
+            ResultSet resultSet = statement.executeQuery();
 
             while (resultSet.next()) {
                 result.add(mapEntityFromResultSet(resultSet));
@@ -71,10 +73,11 @@ public class OrderRepository {
         Order result = null;
 
         try (Connection connection = connectionProvider.getConnection()) {
-            Statement statement = connection.createStatement();
-            ResultSet resultSet = statement.executeQuery(
-                    RepositoryUtils.buildGetByIdQuery(id, tableName, "id_order")
-            );
+            PreparedStatement statement = connection.prepareStatement(SELECT_BY_ID_QUERY);
+
+            statement.setLong(1, id);
+
+            ResultSet resultSet = statement.executeQuery();
 
             if (resultSet.next()) {
                 result = mapEntityFromResultSet(resultSet);
@@ -88,30 +91,47 @@ public class OrderRepository {
         return result;
     }
 
-    public void add(Order order) {
+    public Order add(Order order) {
         try (Connection connection = connectionProvider.getConnection()) {
-            Statement statement = connection.createStatement();
-            statement.executeUpdate(RepositoryUtils.buildAddQuery(tableName, getColumnValuesMap(order)));
+            PreparedStatement statement = connection.prepareStatement(ADD_QUERY, Statement.RETURN_GENERATED_KEYS);
 
+            prepareStatement(order, statement);
+
+            statement.executeUpdate();
+
+            ResultSet generatedKeys = statement.getGeneratedKeys();
+            if (generatedKeys.next()) {
+                order.setId(generatedKeys.getLong("id_order"));
+            }
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
+
+        return order;
     }
 
-    public void update(Order order) {
+    public Order update(Order order) {
         try (Connection connection = connectionProvider.getConnection()) {
-            Statement statement = connection.createStatement();
-            statement.executeUpdate(RepositoryUtils.buildUpdateQuery(order.getId(), tableName,
-                    "id_order", getColumnValuesMap(order)));
+            PreparedStatement statement = connection.prepareStatement(UPDATE_QUERY);
+
+            prepareStatement(order, statement);
+            statement.setLong(4, order.getId());
+
+            statement.executeUpdate();
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
+
+        return order;
     }
 
-    public void delete(long id) {
+    public boolean delete(long id) {
         try (Connection connection = connectionProvider.getConnection()) {
-            Statement statement = connection.createStatement();
-            statement.executeUpdate(RepositoryUtils.buildDeleteQuery(id, tableName, "id_order"));
+            PreparedStatement statement = connection.prepareStatement(DELETE_QUERY);
+
+            statement.setLong(1, id);
+
+            return statement.executeUpdate() > 0;
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }

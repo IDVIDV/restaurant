@@ -4,34 +4,30 @@ import org.example.restaurant.data.ConnectionProvider;
 import org.example.restaurant.data.entities.PositionInOrder;
 
 import java.sql.Connection;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 public class PositionInOrderRepository {
-
-    private final String tableName;
+    private static final String TABLE_NAME = "position_in_order";
+    private static final String SELECT_ALL_QUERY = "SELECT * FROM " + TABLE_NAME;
+    private static final String SELECT_BY_ID_QUERY = "SELECT * FROM " + TABLE_NAME + " WHERE id_pio = (?)";
+    private static final String ADD_QUERY = "INSERT INTO " + TABLE_NAME + " VALUES (DEFAULT,(?),(?),(?))";
+    private static final String UPDATE_QUERY = "UPDATE " + TABLE_NAME + " SET position_id = (?), order_id = (?), " +
+            "position_count = (?) WHERE id_pio = (?)";
+    private static final String DELETE_QUERY = "DELETE FROM " + TABLE_NAME + " WHERE id_pio = (?)";
     private final ConnectionProvider connectionProvider;
     private final PositionRepository positionRepository;
     private final OrderRepository orderRepository;
 
-    public PositionInOrderRepository(String tableName, ConnectionProvider connectionProvider,
+    public PositionInOrderRepository(ConnectionProvider connectionProvider,
                                      PositionRepository positionRepository, OrderRepository orderRepository) {
-        this.tableName = tableName;
         this.connectionProvider = connectionProvider;
         this.positionRepository = positionRepository;
         this.orderRepository = orderRepository;
-    }
-
-    protected Map<String, String> getColumnValuesMap(PositionInOrder positionInOrder) {
-        return Map.of(
-                "position_id", Long.toString(positionInOrder.getPosition().getId()),
-                "order_id", Long.toString(positionInOrder.getOrder().getId()),
-                "position_count", Integer.toString(positionInOrder.getPositionCount())
-        );
     }
 
     protected PositionInOrder mapEntityFromResultSet(ResultSet resultSet) {
@@ -49,12 +45,18 @@ public class PositionInOrderRepository {
         return positionInOrder;
     }
 
+    protected void prepareStatement(PositionInOrder positionInOrder, PreparedStatement statement) throws SQLException {
+        statement.setLong(1, positionInOrder.getPosition().getId());
+        statement.setLong(2, positionInOrder.getOrder().getId());
+        statement.setInt(3, positionInOrder.getPositionCount());
+    }
+
     public List<PositionInOrder> getAll() {
         List<PositionInOrder> result = new ArrayList<>();
 
         try (Connection connection = connectionProvider.getConnection()) {
-            Statement statement = connection.createStatement();
-            ResultSet resultSet = statement.executeQuery(RepositoryUtils.buildGetAllQuery(tableName));
+            PreparedStatement statement = connection.prepareStatement(SELECT_ALL_QUERY);
+            ResultSet resultSet = statement.executeQuery();
 
             while (resultSet.next()) {
                 result.add(mapEntityFromResultSet(resultSet));
@@ -71,10 +73,11 @@ public class PositionInOrderRepository {
         PositionInOrder result = null;
 
         try (Connection connection = connectionProvider.getConnection()) {
-            Statement statement = connection.createStatement();
-            ResultSet resultSet = statement.executeQuery(
-                    RepositoryUtils.buildGetByIdQuery(id, tableName, "id_pio")
-            );
+            PreparedStatement statement = connection.prepareStatement(SELECT_BY_ID_QUERY);
+
+            statement.setLong(1, id);
+
+            ResultSet resultSet = statement.executeQuery();
 
             if (resultSet.next()) {
                 result = mapEntityFromResultSet(resultSet);
@@ -88,30 +91,47 @@ public class PositionInOrderRepository {
         return result;
     }
 
-    public void add(PositionInOrder positionInOrder) {
+    public PositionInOrder add(PositionInOrder positionInOrder) {
         try (Connection connection = connectionProvider.getConnection()) {
-            Statement statement = connection.createStatement();
-            statement.executeUpdate(RepositoryUtils.buildAddQuery(tableName, getColumnValuesMap(positionInOrder)));
+            PreparedStatement statement = connection.prepareStatement(ADD_QUERY, Statement.RETURN_GENERATED_KEYS);
 
+            prepareStatement(positionInOrder, statement);
+
+            statement.executeUpdate();
+
+            ResultSet generatedKeys = statement.getGeneratedKeys();
+            if (generatedKeys.next()) {
+                positionInOrder.setId(generatedKeys.getLong("id_pio"));
+            }
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
+
+        return positionInOrder;
     }
 
-    public void update(PositionInOrder positionInOrder) {
+    public PositionInOrder update(PositionInOrder positionInOrder) {
         try (Connection connection = connectionProvider.getConnection()) {
-            Statement statement = connection.createStatement();
-            statement.executeUpdate(RepositoryUtils.buildUpdateQuery(positionInOrder.getId(), tableName,
-                    "id_pio", getColumnValuesMap(positionInOrder)));
+            PreparedStatement statement = connection.prepareStatement(UPDATE_QUERY);
+
+            prepareStatement(positionInOrder, statement);
+            statement.setLong(4, positionInOrder.getId());
+
+            statement.executeUpdate();
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
+
+        return positionInOrder;
     }
 
-    public void delete(long id) {
+    public boolean delete(long id) {
         try (Connection connection = connectionProvider.getConnection()) {
-            Statement statement = connection.createStatement();
-            statement.executeUpdate(RepositoryUtils.buildDeleteQuery(id, tableName, "id_pio"));
+            PreparedStatement statement = connection.prepareStatement(DELETE_QUERY);
+
+            statement.setLong(1, id);
+
+            return statement.executeUpdate() > 0;
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }

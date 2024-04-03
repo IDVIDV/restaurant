@@ -4,28 +4,25 @@ import org.example.restaurant.data.ConnectionProvider;
 import org.example.restaurant.data.entities.Table;
 
 import java.sql.Connection;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 public class TableRepository {
-
-    private final String tableName;
+    private static final String TABLE_NAME = "table";
+    private static final String SELECT_ALL_QUERY = "SELECT * FROM " + TABLE_NAME;
+    private static final String SELECT_BY_ID_QUERY = "SELECT * FROM " + TABLE_NAME + " WHERE id_table = (?)";
+    private static final String ADD_QUERY = "INSERT INTO " + TABLE_NAME + " VALUES (DEFAULT,(?),(?))";
+    private static final String UPDATE_QUERY = "UPDATE " + TABLE_NAME + " SET table_number = (?), capacity = (?) " +
+            "WHERE id_table = (?)";
+    private static final String DELETE_QUERY = "DELETE FROM " + TABLE_NAME + " WHERE id_table = (?)";
     private final ConnectionProvider connectionProvider;
 
-    public TableRepository(String tableName, ConnectionProvider connectionProvider) {
-        this.tableName = tableName;
+    public TableRepository(ConnectionProvider connectionProvider) {
         this.connectionProvider = connectionProvider;
-    }
-
-    protected Map<String, String> getColumnValuesMap(Table table) {
-        return Map.of(
-                "table_number", Integer.toString(table.getTableNumber()),
-                "capacity", Integer.toString(table.getCapacity())
-        );
     }
 
     protected Table mapEntityFromResultSet(ResultSet resultSet) {
@@ -42,12 +39,17 @@ public class TableRepository {
         return table;
     }
 
+    protected void prepareStatement(Table table, PreparedStatement statement) throws SQLException {
+        statement.setInt(1, table.getTableNumber());
+        statement.setInt(2, table.getCapacity());
+    }
+
     public List<Table> getAll() {
         List<Table> result = new ArrayList<>();
 
         try (Connection connection = connectionProvider.getConnection()) {
-            Statement statement = connection.createStatement();
-            ResultSet resultSet = statement.executeQuery(RepositoryUtils.buildGetAllQuery(tableName));
+            PreparedStatement statement = connection.prepareStatement(SELECT_ALL_QUERY);
+            ResultSet resultSet = statement.executeQuery();
 
             while (resultSet.next()) {
                 result.add(mapEntityFromResultSet(resultSet));
@@ -64,10 +66,11 @@ public class TableRepository {
         Table result = null;
 
         try (Connection connection = connectionProvider.getConnection()) {
-            Statement statement = connection.createStatement();
-            ResultSet resultSet = statement.executeQuery(
-                    RepositoryUtils.buildGetByIdQuery(id, tableName, "id_table")
-            );
+            PreparedStatement statement = connection.prepareStatement(SELECT_BY_ID_QUERY);
+
+            statement.setLong(1, id);
+
+            ResultSet resultSet = statement.executeQuery();
 
             if (resultSet.next()) {
                 result = mapEntityFromResultSet(resultSet);
@@ -81,30 +84,48 @@ public class TableRepository {
         return result;
     }
 
-    public void add(Table table) {
+    public Table add(Table table) {
         try (Connection connection = connectionProvider.getConnection()) {
-            Statement statement = connection.createStatement();
-            statement.executeUpdate(RepositoryUtils.buildAddQuery(tableName, getColumnValuesMap(table)));
+            PreparedStatement statement = connection.prepareStatement(ADD_QUERY, Statement.RETURN_GENERATED_KEYS);
+
+            prepareStatement(table, statement);
+
+            statement.executeUpdate();
+
+            ResultSet generatedKeys = statement.getGeneratedKeys();
+            if (generatedKeys.next()) {
+                table.setId(generatedKeys.getLong("id_table"));
+            }
 
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
+
+        return table;
     }
 
-    public void update(Table table) {
+    public Table update(Table table) {
         try (Connection connection = connectionProvider.getConnection()) {
-            Statement statement = connection.createStatement();
-            statement.executeUpdate(RepositoryUtils.buildUpdateQuery(table.getId(), tableName,
-                    "id_table", getColumnValuesMap(table)));
+            PreparedStatement statement = connection.prepareStatement(UPDATE_QUERY);
+
+            prepareStatement(table, statement);
+            statement.setLong(3, table.getId());
+
+            statement.executeUpdate();
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
+
+        return table;
     }
 
-    public void delete(long id) {
+    public boolean delete(long id) {
         try (Connection connection = connectionProvider.getConnection()) {
-            Statement statement = connection.createStatement();
-            statement.executeUpdate(RepositoryUtils.buildDeleteQuery(id, tableName, "id_table"));
+            PreparedStatement statement = connection.prepareStatement(DELETE_QUERY);
+
+            statement.setLong(1, id);
+
+            return statement.executeUpdate() > 0;
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
