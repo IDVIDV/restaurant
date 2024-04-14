@@ -1,10 +1,9 @@
-package org.example.restaurant.datalayer.entities;
+package org.example.restaurant.datalayer.dto.user;
 
-public class User extends Entity {
+public class AddUserDto {
     private String login;
     private String password;
     private String phoneNumber;
-    private String role;
 
     public String getLogin() {
         return login;
@@ -28,13 +27,5 @@ public class User extends Entity {
 
     public void setPhoneNumber(String phoneNumber) {
         this.phoneNumber = phoneNumber;
-    }
-
-    public String getRole() {
-        return role;
-    }
-
-    public void setRole(String role) {
-        this.role = role;
     }
 }

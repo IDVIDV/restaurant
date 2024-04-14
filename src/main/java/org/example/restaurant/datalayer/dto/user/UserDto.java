@@ -1,17 +1,17 @@
-package org.example.restaurant.datalayer.dto;
+package org.example.restaurant.datalayer.dto.user;
 
 public class UserDto {
+    private Long id;
     private String login;
     private String phoneNumber;
     private String role;
 
-    public UserDto(String login, String phoneNumber, String role) {
-        this.login = login;
-        this.phoneNumber = phoneNumber;
-        this.role = role;
+    public Long getId() {
+        return id;
     }
 
-    public UserDto() {
+    public void setId(Long id) {
+        this.id = id;
     }
 
     public String getLogin() {

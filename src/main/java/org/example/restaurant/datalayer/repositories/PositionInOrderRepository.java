@@ -2,6 +2,7 @@ package org.example.restaurant.datalayer.repositories;
 
 import org.example.restaurant.datalayer.ConnectionProvider;
 import org.example.restaurant.datalayer.entities.PositionInOrder;
+import org.example.restaurant.datalayer.exceptions.DataBaseException;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -20,15 +21,6 @@ public class PositionInOrderRepository {
             "position_count = (?) WHERE id_pio = (?)";
     private static final String DELETE_QUERY = "DELETE FROM " + TABLE_NAME + " WHERE id_pio = (?)";
     private final ConnectionProvider connectionProvider;
-    //private final PositionRepository positionRepository;
-    //private final OrderRepository orderRepository;
-
-//    public PositionInOrderRepository(ConnectionProvider connectionProvider,
-//                                     PositionRepository positionRepository, OrderRepository orderRepository) {
-//        this.connectionProvider = connectionProvider;
-//        this.positionRepository = positionRepository;
-//        this.orderRepository = orderRepository;
-//    }
 
     public PositionInOrderRepository(ConnectionProvider connectionProvider) {
         this.connectionProvider = connectionProvider;
@@ -39,21 +31,17 @@ public class PositionInOrderRepository {
 
         try {
             positionInOrder.setId(resultSet.getLong("id_pio"));
-            //positionInOrder.setPosition(positionRepository.getById(resultSet.getLong("position_id")).);
-            //positionInOrder.setOrder(orderRepository.getById(resultSet.getLong("order_id")));
             positionInOrder.setPositionId(resultSet.getLong("position_id"));
             positionInOrder.setOrderId(resultSet.getLong("order_id"));
             positionInOrder.setPositionCount(resultSet.getInt("position_count"));
         } catch (SQLException e) {
-            throw new RuntimeException(e);
+            throw new DataBaseException(e.getMessage());
         }
 
         return positionInOrder;
     }
 
     protected void prepareStatement(PositionInOrder positionInOrder, PreparedStatement statement) throws SQLException {
-//        statement.setLong(1, positionInOrder.getPosition().getId());
-//        statement.setLong(2, positionInOrder.getOrder().getId());
         statement.setLong(1, positionInOrder.getPositionId());
         statement.setLong(2, positionInOrder.getOrderId());
         statement.setInt(3, positionInOrder.getPositionCount());
@@ -71,13 +59,13 @@ public class PositionInOrderRepository {
             }
 
         } catch (SQLException e) {
-            throw new RuntimeException(e);
+            throw new DataBaseException(e.getMessage());
         }
 
         return result;
     }
 
-    public PositionInOrder getById(long id) {
+    public PositionInOrder getById(Long id) {
         PositionInOrder result = null;
 
         try (Connection connection = connectionProvider.getConnection()) {
@@ -90,10 +78,9 @@ public class PositionInOrderRepository {
             if (resultSet.next()) {
                 result = mapEntityFromResultSet(resultSet);
             }
-            //TODO: добавить обработку случая, когда нет сущности
 
         } catch (SQLException e) {
-            throw new RuntimeException(e);
+            throw new DataBaseException(e.getMessage());
         }
 
         return result;
@@ -108,11 +95,13 @@ public class PositionInOrderRepository {
             statement.executeUpdate();
 
             ResultSet generatedKeys = statement.getGeneratedKeys();
+
             if (generatedKeys.next()) {
                 positionInOrder.setId(generatedKeys.getLong("id_pio"));
             }
+
         } catch (SQLException e) {
-            throw new RuntimeException(e);
+            throw new DataBaseException(e.getMessage());
         }
 
         return positionInOrder;
@@ -127,13 +116,13 @@ public class PositionInOrderRepository {
 
             statement.executeUpdate();
         } catch (SQLException e) {
-            throw new RuntimeException(e);
+            throw new DataBaseException(e.getMessage());
         }
 
         return positionInOrder;
     }
 
-    public boolean delete(long id) {
+    public boolean delete(Long id) {
         try (Connection connection = connectionProvider.getConnection()) {
             PreparedStatement statement = connection.prepareStatement(DELETE_QUERY);
 
@@ -141,7 +130,7 @@ public class PositionInOrderRepository {
 
             return statement.executeUpdate() == 1;
         } catch (SQLException e) {
-            throw new RuntimeException(e);
+            throw new DataBaseException(e.getMessage());
         }
     }
 }

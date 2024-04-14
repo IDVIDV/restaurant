@@ -6,10 +6,12 @@ import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.example.restaurant.datalayer.ConnectionProvider;
-import org.example.restaurant.datalayer.entities.Position;
-import org.example.restaurant.datalayer.exceptions.DataLayerException;
+import org.example.restaurant.datalayer.dto.position.PositionDto;
+import org.example.restaurant.datalayer.dto.position.UpdatePositionDto;
+import org.example.restaurant.datalayer.exceptions.DataBaseException;
+import org.example.restaurant.datalayer.mappers.PositionMapper;
 import org.example.restaurant.datalayer.repositories.PositionRepository;
-import org.example.restaurant.servicelayer.exceptions.ServiceLayerException;
+import org.example.restaurant.servicelayer.OperationResult;
 import org.example.restaurant.servicelayer.services.PositionService;
 import org.example.restaurant.servicelayer.validators.PositionValidator;
 
@@ -20,44 +22,60 @@ import java.util.Objects;
 @WebServlet(value = "/admin/update-position")
 public class UpdatePositionServlet extends HttpServlet {
     private PositionService positionService;
+
     @Override
     public void init() throws ServletException {
-        positionService = new PositionService(new PositionRepository(ConnectionProvider.getInstance()),
-                PositionValidator.getInstance());
+        positionService = new PositionService(PositionValidator.getInstance(),
+                PositionMapper.getInstance(),
+                new PositionRepository(ConnectionProvider.getInstance()));
     }
+
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         Long positionId = Long.valueOf(req.getParameter("positionId"));
+        OperationResult<PositionDto> result;
+
         try {
-            req.setAttribute("position", positionService.getById(positionId));
+            result = positionService.getById(positionId);
+        } catch (DataBaseException e) {
+            result = new OperationResult<>("DataBase error: " + e.getMessage());
+        }
+
+        if (result.isSuccess()) {
+            req.setAttribute("position", result.getResult());
             req.getRequestDispatcher("update-position.jsp").forward(req, resp);
-        } catch (DataLayerException e) {
-            resp.sendError(500, e.getMessage());
-        } catch (ServiceLayerException e) {
-            resp.sendError(400, e.getMessage());
-        }   //TODO ошибки
+        } else {
+            req.setAttribute("error", result.getFailReason());
+            req.getRequestDispatcher("").forward(req, resp);
+        }
     }
 
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        try {
-            Position position = new Position();
-            position.setId(Long.parseLong(req.getParameter("positionId")));
-            position.setPositionName(req.getParameter("positionName"));
-            position.setPrice(BigDecimal.valueOf(Long.parseLong(req.getParameter("price"))));
-            position.setWeight(Double.parseDouble(req.getParameter("weight")));
-            position.setProtein(Double.parseDouble(req.getParameter("protein")));
-            position.setFat(Double.parseDouble(req.getParameter("fat")));
-            position.setCarbohydrate(Double.parseDouble(req.getParameter("carbohydrate")));
-            position.setVegan(Objects.isNull(req.getParameter("isVegan")));
-            position.setIngredients(req.getParameter("ingredients"));
+        OperationResult<PositionDto> result;
 
-            positionService.update(position);
+        try {
+            UpdatePositionDto updatePositionDto = new UpdatePositionDto();
+            updatePositionDto.setId(Long.parseLong(req.getParameter("positionId")));
+            updatePositionDto.setPositionName(req.getParameter("positionName"));
+            updatePositionDto.setPrice(BigDecimal.valueOf(Long.parseLong(req.getParameter("price"))));
+            updatePositionDto.setWeight(Double.parseDouble(req.getParameter("weight")));
+            updatePositionDto.setProtein(Double.parseDouble(req.getParameter("protein")));
+            updatePositionDto.setFat(Double.parseDouble(req.getParameter("fat")));
+            updatePositionDto.setCarbohydrate(Double.parseDouble(req.getParameter("carbohydrate")));
+            updatePositionDto.setVegan(!Objects.isNull(req.getParameter("isVegan")));
+            updatePositionDto.setIngredients(req.getParameter("ingredients"));
+
+            result = positionService.update(updatePositionDto);
+        } catch (DataBaseException e) {
+            result = new OperationResult<>("DataBase error: " + e.getMessage());
+        }
+
+        if (result.isSuccess()) {
             resp.sendRedirect(req.getContextPath());
-        } catch (DataLayerException e) {
-            resp.sendError(500, e.getMessage());
-        } catch (ServiceLayerException e) {
-            resp.sendError(400, e.getMessage());
-        }   //TODO ошибки
+        } else {
+            req.setAttribute("error", result.getFailReason());
+            doGet(req, resp);
+        }
     }
 }

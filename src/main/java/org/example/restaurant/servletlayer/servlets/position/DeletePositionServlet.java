@@ -6,9 +6,10 @@ import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.example.restaurant.datalayer.ConnectionProvider;
-import org.example.restaurant.datalayer.exceptions.DataLayerException;
+import org.example.restaurant.datalayer.exceptions.DataBaseException;
+import org.example.restaurant.datalayer.mappers.PositionMapper;
 import org.example.restaurant.datalayer.repositories.PositionRepository;
-import org.example.restaurant.servicelayer.exceptions.ServiceLayerException;
+import org.example.restaurant.servicelayer.OperationResult;
 import org.example.restaurant.servicelayer.services.PositionService;
 import org.example.restaurant.servicelayer.validators.PositionValidator;
 
@@ -20,20 +21,27 @@ public class DeletePositionServlet extends HttpServlet {
 
     @Override
     public void init() throws ServletException {
-        positionService = new PositionService(new PositionRepository(ConnectionProvider.getInstance()),
-                PositionValidator.getInstance());
+        positionService = new PositionService(PositionValidator.getInstance(),
+                PositionMapper.getInstance(),
+                new PositionRepository(ConnectionProvider.getInstance()));
     }
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         Long positionId = Long.valueOf(req.getParameter("positionId"));
+        OperationResult<Boolean> result;
+
         try {
-            positionService.delete(positionId);
+            result = positionService.delete(positionId);
+        } catch (DataBaseException e) {
+            result = new OperationResult<>("DataBase error: " + e.getMessage());
+        }
+
+        if (result.isSuccess()) {
             resp.sendRedirect(req.getContextPath());
-        } catch (DataLayerException e) {
-            resp.sendError(500, e.getMessage());
-        } catch (ServiceLayerException e) {
-            resp.sendError(400, e.getMessage());
-        }   //TODO ошибки
+        } else {
+            req.setAttribute("error", result.getFailReason());
+            req.getRequestDispatcher(req.getContextPath() + "/position").forward(req, resp);
+        }
     }
 }

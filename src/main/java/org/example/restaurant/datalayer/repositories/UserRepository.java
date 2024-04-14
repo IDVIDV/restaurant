@@ -2,6 +2,7 @@ package org.example.restaurant.datalayer.repositories;
 
 import org.example.restaurant.datalayer.ConnectionProvider;
 import org.example.restaurant.datalayer.entities.User;
+import org.example.restaurant.datalayer.exceptions.DataBaseException;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -36,7 +37,7 @@ public class UserRepository {
             user.setPhoneNumber(resultSet.getString("phone_number"));
             user.setRole(resultSet.getString("role"));
         } catch (SQLException e) {
-            throw new RuntimeException(e);
+            throw new DataBaseException(e.getMessage());
         }
 
         return user;
@@ -60,13 +61,13 @@ public class UserRepository {
             }
 
         } catch (SQLException e) {
-            throw new RuntimeException(e);
+            throw new DataBaseException(e.getMessage());
         }
 
         return result;
     }
 
-    public User getById(long id) {
+    public User getById(Long id) {
         User result = null;
 
         try (Connection connection = connectionProvider.getConnection()) {
@@ -79,10 +80,9 @@ public class UserRepository {
             if (resultSet.next()) {
                 result = mapEntityFromResultSet(resultSet);
             }
-            //TODO: добавить обработку случая, когда нет сущности
 
         } catch (SQLException e) {
-            throw new RuntimeException(e);
+            throw new DataBaseException(e.getMessage());
         }
 
         return result;
@@ -101,10 +101,9 @@ public class UserRepository {
             if (resultSet.next()) {
                 result = mapEntityFromResultSet(resultSet);
             }
-            //TODO: добавить обработку случая, когда нет сущности
 
         } catch (SQLException e) {
-            throw new RuntimeException(e);
+            throw new DataBaseException(e.getMessage());
         }
 
         return result;
@@ -119,11 +118,13 @@ public class UserRepository {
             statement.executeUpdate();
 
             ResultSet generatedKeys = statement.getGeneratedKeys();
+
             if (generatedKeys.next()) {
                 user.setId(generatedKeys.getLong("id_user"));
             }
+
         } catch (SQLException e) {
-            throw new RuntimeException(e);
+            throw new DataBaseException(e.getMessage());
         }
 
         return user;
@@ -138,13 +139,13 @@ public class UserRepository {
 
             statement.executeUpdate();
         } catch (SQLException e) {
-            throw new RuntimeException(e);
+            throw new DataBaseException(e.getMessage());
         }
 
         return user;
     }
 
-    public boolean delete(long id) {
+    public boolean delete(Long id) {
         try (Connection connection = connectionProvider.getConnection()) {
             PreparedStatement statement = connection.prepareStatement(DELETE_QUERY);
 
@@ -152,7 +153,7 @@ public class UserRepository {
 
             return statement.executeUpdate() == 1;
         } catch (SQLException e) {
-            throw new RuntimeException(e);
+            throw new DataBaseException(e.getMessage());
         }
     }
 }

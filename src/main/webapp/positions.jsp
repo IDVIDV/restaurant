@@ -12,14 +12,10 @@
     <title>Блюда</title>
 </head>
 <body>
-<c:if test="${empty sessionScope.user}">
-    <form action="${pageContext.request.contextPath}/login" method="get">
-        <button type="submit">Войти</button>
-    </form>
-</c:if>
-<c:if test="${not empty sessionScope.user}">
-    <div>Вы вошли как ${sessionScope.user.login}</div>
-</c:if>
+<jsp:include page="logininfo.jsp"></jsp:include>
+<jsp:include page="profilelink.jsp"></jsp:include>
+<jsp:include page="logoutlink.jsp"></jsp:include>
+<jsp:include page="error.jsp"></jsp:include>
 <form method="get">
     <label>
         Название позиции

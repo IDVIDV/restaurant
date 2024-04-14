@@ -7,6 +7,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
 import org.example.restaurant.datalayer.ConnectionProvider;
+import org.example.restaurant.datalayer.mappers.PositionMapper;
 import org.example.restaurant.datalayer.repositories.PositionRepository;
 import org.example.restaurant.servicelayer.services.PositionService;
 import org.example.restaurant.servicelayer.validators.PositionValidator;
@@ -19,8 +20,9 @@ public class PositionListServlet extends HttpServlet {
 
     @Override
     public void init() {
-        positionService = new PositionService(new PositionRepository(ConnectionProvider.getInstance()),
-                PositionValidator.getInstance());
+        positionService = new PositionService(PositionValidator.getInstance(),
+                PositionMapper.getInstance(),
+                new PositionRepository(ConnectionProvider.getInstance()));
     }
 
     @Override

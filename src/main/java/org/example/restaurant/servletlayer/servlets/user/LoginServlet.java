@@ -6,10 +6,16 @@ import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.example.restaurant.datalayer.ConnectionProvider;
+import org.example.restaurant.datalayer.dto.user.UserDto;
+import org.example.restaurant.datalayer.exceptions.DataBaseException;
+import org.example.restaurant.datalayer.mappers.UserMapper;
 import org.example.restaurant.datalayer.repositories.UserRepository;
+import org.example.restaurant.servicelayer.OperationResult;
 import org.example.restaurant.servicelayer.services.UserService;
+import org.example.restaurant.servicelayer.validators.UserValidator;
 
 import java.io.IOException;
+import java.util.Objects;
 
 @WebServlet(value = "/login")
 public class LoginServlet extends HttpServlet {
@@ -17,23 +23,40 @@ public class LoginServlet extends HttpServlet {
 
     @Override
     public void init() throws ServletException {
-        userService = new UserService(new UserRepository(ConnectionProvider.getInstance()));
+        userService = new UserService(UserValidator.getInstance(),
+                UserMapper.getInstance(),
+                new UserRepository(ConnectionProvider.getInstance()));
     }
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+        if (!Objects.isNull(req.getSession().getAttribute("user"))) {
+            resp.sendRedirect(req.getContextPath());
+            return;
+        }
+
         req.getRequestDispatcher("login.jsp").forward(req, resp);
     }
 
+    //TODO
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         String login = req.getParameter("login");
         String password = req.getParameter("password");
-        if (userService.login(login, password)) {
-            req.getSession().setAttribute("user", userService.getByLogin(login));
+        OperationResult<UserDto> result;
+
+        try {
+            result = userService.login(login, password);
+        } catch (DataBaseException e) {
+            result = new OperationResult<>("DataBase error: " + e .getMessage());
+        }
+
+        if (result.isSuccess()) {
+            req.getSession().setAttribute("user", result.getResult());
             resp.sendRedirect(req.getContextPath());
         } else {
-            resp.sendRedirect(req.getContextPath() + "/login");
+            req.setAttribute("error", result.getFailReason());
+            doGet(req, resp);
         }
     }
 }

@@ -1,8 +1,9 @@
-package org.example.restaurant.datalayer.entities;
+package org.example.restaurant.datalayer.dto.position;
 
 import java.math.BigDecimal;
 
-public class Position extends Entity {
+public class UpdatePositionDto {
+    private Long Id;
     private String positionName;
     private BigDecimal price;
     private Double weight;
@@ -11,6 +12,14 @@ public class Position extends Entity {
     private Double carbohydrate;
     private Boolean isVegan;
     private String ingredients;
+
+    public Long getId() {
+        return Id;
+    }
+
+    public void setId(Long id) {
+        Id = id;
+    }
 
     public String getPositionName() {
         return positionName;
@@ -60,7 +69,7 @@ public class Position extends Entity {
         this.carbohydrate = carbohydrate;
     }
 
-    public Boolean isVegan() {
+    public Boolean getVegan() {
         return isVegan;
     }
 

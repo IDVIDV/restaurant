@@ -1,28 +1,19 @@
 package org.example.restaurant.datalayer.entities;
 
 import java.sql.Date;
-import java.util.Objects;
 
 public class Order extends Entity {
-    private User user;
+    private Long userId;
     private Table table;
     private Date orderDate;
+    private Boolean isFinished;
 
-    public Order() {}
-
-    public Order(long id, User user, Table table, Date orderDate) {
-        super(id);
-        this.user = user;
-        this.table = table;
-        this.orderDate = orderDate;
+    public Long getUserId() {
+        return userId;
     }
 
-    public User getUser() {
-        return user;
-    }
-
-    public void setUser(User user) {
-        this.user = user;
+    public void setUserId(Long userId) {
+        this.userId = userId;
     }
 
     public Table getTable() {
@@ -41,19 +32,11 @@ public class Order extends Entity {
         this.orderDate = orderDate;
     }
 
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        if (!super.equals(o)) return false;
-        Order order = (Order) o;
-        return Objects.equals(user, order.user) &&
-                Objects.equals(table, order.table) &&
-                Objects.equals(orderDate, order.orderDate);
+    public Boolean isFinished() {
+        return isFinished;
     }
 
-    @Override
-    public int hashCode() {
-        return Objects.hash(super.hashCode(), user, table, orderDate);
+    public void setFinished(Boolean finished) {
+        isFinished = finished;
     }
 }

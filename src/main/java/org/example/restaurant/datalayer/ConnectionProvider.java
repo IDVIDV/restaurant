@@ -7,9 +7,6 @@ import java.sql.Connection;
 import java.sql.SQLException;
 
 public class ConnectionProvider {
-//    private final String url = "jdbc:postgresql://localhost:5432/restaurant";
-//    private final String user = "postgres";
-//    private final String password = "abc";
     private final DataSource dataSource;
     private static final ConnectionProvider CONNECTION_PROVIDER = new ConnectionProvider();
 
@@ -30,16 +27,9 @@ public class ConnectionProvider {
         } catch (NamingException e) {
             throw new RuntimeException(e);
         }
-
-//        try {
-//            Class.forName("org.postgresql.Driver");
-//        } catch (ClassNotFoundException e) {
-//            throw new RuntimeException(e);
-//        }
     }
 
     public Connection getConnection() throws SQLException {
         return dataSource.getConnection();
-        //return DriverManager.getConnection(url, user, password);
     }
 }

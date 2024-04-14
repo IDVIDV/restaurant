@@ -6,8 +6,11 @@ import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.example.restaurant.datalayer.ConnectionProvider;
-import org.example.restaurant.datalayer.exceptions.DataLayerException;
+import org.example.restaurant.datalayer.dto.position.PositionDto;
+import org.example.restaurant.datalayer.exceptions.DataBaseException;
+import org.example.restaurant.datalayer.mappers.PositionMapper;
 import org.example.restaurant.datalayer.repositories.PositionRepository;
+import org.example.restaurant.servicelayer.OperationResult;
 import org.example.restaurant.servicelayer.services.PositionService;
 import org.example.restaurant.servicelayer.validators.PositionValidator;
 
@@ -19,18 +22,28 @@ public class PositionServlet extends HttpServlet {
 
     @Override
     public void init() {
-        positionService = new PositionService(new PositionRepository(ConnectionProvider.getInstance()),
-                PositionValidator.getInstance());
+        positionService = new PositionService(PositionValidator.getInstance(),
+                PositionMapper.getInstance(),
+                new PositionRepository(ConnectionProvider.getInstance()));
     }
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
         Long positionId = Long.valueOf(req.getParameter("positionId"));
+        OperationResult<PositionDto> result;
+
         try {
-            req.setAttribute("position", positionService.getById(positionId));
+            result = positionService.getById(positionId);
+        } catch (DataBaseException e) {
+            result = new OperationResult<>("DataBase error: " + e.getMessage());
+        }
+
+        if (result.isSuccess()) {
+            req.setAttribute("position", result.getResult());
             req.getRequestDispatcher("position.jsp").forward(req, resp);
-        } catch (DataLayerException e) {
-            resp.sendError(404, e.getMessage());
+        } else {
+            req.setAttribute("error", result.getFailReason());
+            req.getRequestDispatcher("").forward(req, resp);
         }
     }
 }

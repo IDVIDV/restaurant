@@ -3,7 +3,6 @@ package org.example.restaurant.datalayer.repositories;
 import org.example.restaurant.datalayer.ConnectionProvider;
 import org.example.restaurant.datalayer.entities.Position;
 import org.example.restaurant.datalayer.exceptions.DataBaseException;
-import org.example.restaurant.datalayer.exceptions.EntityNotFoundException;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -98,7 +97,7 @@ public class PositionRepository {
         return result;
     }
 
-    public Position getById(long id) {
+    public Position getById(Long id) {
         Position result = null;
 
         try (Connection connection = connectionProvider.getConnection()) {
@@ -110,8 +109,6 @@ public class PositionRepository {
 
             if (resultSet.next()) {
                 result = mapEntityFromResultSet(resultSet);
-            } else {
-                throw new EntityNotFoundException("No position with given id " + id);
             }
 
         } catch (SQLException e) {
@@ -156,13 +153,13 @@ public class PositionRepository {
         return position;
     }
 
-    public boolean delete(long id) {
+    public boolean delete(Long id) {
         try (Connection connection = connectionProvider.getConnection()) {
             PreparedStatement statement = connection.prepareStatement(DELETE_QUERY);
 
             statement.setLong(1, id);
 
-            return statement.executeUpdate() == 1; //TODO
+            return statement.executeUpdate() == 1;
         } catch (SQLException e) {
             throw new DataBaseException(e.getMessage());
         }

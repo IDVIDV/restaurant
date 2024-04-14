@@ -12,6 +12,9 @@
     <title>Title</title>
 </head>
 <body>
+<jsp:include page="logininfo.jsp"></jsp:include>
+<jsp:include page="profilelink.jsp"></jsp:include>
+<jsp:include page="logoutlink.jsp"></jsp:include>
 <div>
     <div>Название: <c:out value="${position.positionName}"></c:out></div>
     <div>Цена: ${position.price}</div>
@@ -30,5 +33,7 @@
         </form>
     </c:if>
 </div>
+<jsp:include page="error.jsp"></jsp:include>
+<jsp:include page="backtomainlink.jsp"></jsp:include>
 </body>
 </html>

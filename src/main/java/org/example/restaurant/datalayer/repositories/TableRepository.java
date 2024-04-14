@@ -2,6 +2,7 @@ package org.example.restaurant.datalayer.repositories;
 
 import org.example.restaurant.datalayer.ConnectionProvider;
 import org.example.restaurant.datalayer.entities.Table;
+import org.example.restaurant.datalayer.exceptions.DataBaseException;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -33,7 +34,7 @@ public class TableRepository {
             table.setTableNumber(resultSet.getInt("table_number"));
             table.setCapacity(resultSet.getInt("capacity"));
         } catch (SQLException e) {
-            throw new RuntimeException(e);
+            throw new DataBaseException(e.getMessage());
         }
 
         return table;
@@ -56,13 +57,13 @@ public class TableRepository {
             }
 
         } catch (SQLException e) {
-            throw new RuntimeException(e);
+            throw new DataBaseException(e.getMessage());
         }
 
         return result;
     }
 
-    public Table getById(long id) {
+    public Table getById(Long id) {
         Table result = null;
 
         try (Connection connection = connectionProvider.getConnection()) {
@@ -75,10 +76,9 @@ public class TableRepository {
             if (resultSet.next()) {
                 result = mapEntityFromResultSet(resultSet);
             }
-            //TODO: добавить обработку случая, когда нет сущности
 
         } catch (SQLException e) {
-            throw new RuntimeException(e);
+            throw new DataBaseException(e.getMessage());
         }
 
         return result;
@@ -93,12 +93,13 @@ public class TableRepository {
             statement.executeUpdate();
 
             ResultSet generatedKeys = statement.getGeneratedKeys();
+
             if (generatedKeys.next()) {
                 table.setId(generatedKeys.getLong("id_table"));
             }
 
         } catch (SQLException e) {
-            throw new RuntimeException(e);
+            throw new DataBaseException(e.getMessage());
         }
 
         return table;
@@ -113,13 +114,13 @@ public class TableRepository {
 
             statement.executeUpdate();
         } catch (SQLException e) {
-            throw new RuntimeException(e);
+            throw new DataBaseException(e.getMessage());
         }
 
         return table;
     }
 
-    public boolean delete(long id) {
+    public boolean delete(Long id) {
         try (Connection connection = connectionProvider.getConnection()) {
             PreparedStatement statement = connection.prepareStatement(DELETE_QUERY);
 
@@ -127,7 +128,7 @@ public class TableRepository {
 
             return statement.executeUpdate() == 1;
         } catch (SQLException e) {
-            throw new RuntimeException(e);
+            throw new DataBaseException(e.getMessage());
         }
     }
 }

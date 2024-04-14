@@ -12,35 +12,38 @@
     <title>Изменение ${position.positionName}</title>
 </head>
 <body>
+<jsp:include page="/logininfo.jsp"></jsp:include>
+<jsp:include page="/profilelink.jsp"></jsp:include>
+<jsp:include page="/logoutlink.jsp"></jsp:include>
 <form method="post">
     <label>
         Название
-        <input type="text" name="positionName" value="${position.positionName}">
+        <input type="text" required name="positionName" value="${position.positionName}">
     </label>
     <br>
     <label>
         Цена
-        <input type="number" name="price" value="${position.price}">
+        <input type="number" required name="price" value="${position.price}">
     </label>
     <br>
     <label>
         Вес
-        <input type="number" name="weight" value="${position.weight}">
+        <input type="number" required name="weight" value="${position.weight}">
     </label>
     <br>
     <label>
         Белки
-        <input type="number" name="protein" value="${position.fat}">
+        <input type="number" required name="protein" value="${position.fat}">
     </label>
     <br>
     <label>
         Жиры
-        <input type="number" name="fat" value="${position.fat}">
+        <input type="number" required name="fat" value="${position.fat}">
     </label>
     <br>
     <label>
         Углеводы
-        <input type="number" name="carbohydrate" value="${position.carbohydrate}">
+        <input type="number" required name="carbohydrate" value="${position.carbohydrate}">
     </label>
     <br>
     <label>
@@ -55,5 +58,7 @@
     <br>
     <button type="submit">Изменить</button>
 </form>
+<jsp:include page="/error.jsp"></jsp:include>
+<jsp:include page="/backtomainlink.jsp"></jsp:include>
 </body>
 </html>

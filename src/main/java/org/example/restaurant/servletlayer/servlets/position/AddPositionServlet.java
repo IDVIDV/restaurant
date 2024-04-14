@@ -6,10 +6,12 @@ import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.example.restaurant.datalayer.ConnectionProvider;
-import org.example.restaurant.datalayer.entities.Position;
-import org.example.restaurant.datalayer.exceptions.DataLayerException;
+import org.example.restaurant.datalayer.dto.position.AddPositionDto;
+import org.example.restaurant.datalayer.dto.position.PositionDto;
+import org.example.restaurant.datalayer.exceptions.DataBaseException;
+import org.example.restaurant.datalayer.mappers.PositionMapper;
 import org.example.restaurant.datalayer.repositories.PositionRepository;
-import org.example.restaurant.servicelayer.exceptions.ServiceLayerException;
+import org.example.restaurant.servicelayer.OperationResult;
 import org.example.restaurant.servicelayer.services.PositionService;
 import org.example.restaurant.servicelayer.validators.PositionValidator;
 
@@ -23,8 +25,9 @@ public class AddPositionServlet extends HttpServlet {
 
     @Override
     public void init() throws ServletException {
-        positionService = new PositionService(new PositionRepository(ConnectionProvider.getInstance()),
-                PositionValidator.getInstance());
+        positionService = new PositionService(PositionValidator.getInstance(),
+                PositionMapper.getInstance(),
+                new PositionRepository(ConnectionProvider.getInstance()));
     }
 
     @Override
@@ -34,23 +37,29 @@ public class AddPositionServlet extends HttpServlet {
 
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        try {
-            Position position = new Position();
-            position.setPositionName(req.getParameter("positionName"));
-            position.setPrice(BigDecimal.valueOf(Long.parseLong(req.getParameter("price"))));
-            position.setWeight(Double.parseDouble(req.getParameter("weight")));
-            position.setProtein(Double.parseDouble(req.getParameter("protein")));
-            position.setFat(Double.parseDouble(req.getParameter("fat")));
-            position.setCarbohydrate(Double.parseDouble(req.getParameter("carbohydrate")));
-            position.setVegan(Objects.isNull(req.getParameter("isVegan")));
-            position.setIngredients(req.getParameter("ingredients"));
+        OperationResult<PositionDto> result;
 
-            positionService.add(position);
+        try {
+            AddPositionDto addPositionDto = new AddPositionDto();
+            addPositionDto.setPositionName(req.getParameter("positionName"));
+            addPositionDto.setPrice(BigDecimal.valueOf(Long.parseLong(req.getParameter("price"))));
+            addPositionDto.setWeight(Double.parseDouble(req.getParameter("weight")));
+            addPositionDto.setProtein(Double.parseDouble(req.getParameter("protein")));
+            addPositionDto.setFat(Double.parseDouble(req.getParameter("fat")));
+            addPositionDto.setCarbohydrate(Double.parseDouble(req.getParameter("carbohydrate")));
+            addPositionDto.setVegan(!Objects.isNull(req.getParameter("isVegan")));
+            addPositionDto.setIngredients(req.getParameter("ingredients"));
+
+            result = positionService.add(addPositionDto);
+        } catch (DataBaseException e) {
+            result = new OperationResult<>("DataBase error: "+ e.getMessage());
+        }
+
+        if (result.isSuccess()) {
             resp.sendRedirect(req.getContextPath());
-        } catch (DataLayerException e) {
-            resp.sendError(500, e.getMessage());
-        } catch (ServiceLayerException e) {
-            resp.sendError(400, e.getMessage());
-        }   //TODO ошибки
+        } else {
+            req.setAttribute("error", result.getFailReason());
+            doGet(req, resp);
+        }
     }
 }

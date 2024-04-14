@@ -1,5 +1,7 @@
 package org.example.restaurant.servicelayer.validators;
 
+import org.example.restaurant.datalayer.dto.position.AddPositionDto;
+import org.example.restaurant.datalayer.dto.position.UpdatePositionDto;
 import org.example.restaurant.datalayer.entities.Position;
 
 import java.math.BigDecimal;
@@ -14,22 +16,22 @@ public class PositionValidator {
     private PositionValidator() {
     }
 
-    private boolean isValid(Position position) {
-        return !position.getPositionName().isEmpty() &&
-                position.getPrice().compareTo(BigDecimal.ZERO) > 0 &&
-                position.getWeight() > 0 &&
-                position.getProtein() > 0 &&
-                position.getFat() > 0 &&
-                position.getCarbohydrate() > 0;
-
+    public boolean isAddValid(AddPositionDto addPositionDto) {
+        return !addPositionDto.getPositionName().isEmpty() &&
+                addPositionDto.getPrice().compareTo(BigDecimal.ZERO) > 0 &&
+                addPositionDto.getWeight() > 0 &&
+                addPositionDto.getProtein() > 0 &&
+                addPositionDto.getFat() > 0 &&
+                addPositionDto.getCarbohydrate() > 0;
     }
 
-    public boolean isAddValid(Position position) {
-        return isValid(position);
-    }
-
-    public boolean isCreateValid(Position position) {
-        return position.getId() > 0 &&
-                isValid(position);
+    public boolean isUpdateValid(UpdatePositionDto updatePositionDto) {
+        return updatePositionDto.getId() > 0 &&
+                !updatePositionDto.getPositionName().isEmpty() &&
+                updatePositionDto.getPrice().compareTo(BigDecimal.ZERO) > 0 &&
+                updatePositionDto.getWeight() > 0 &&
+                updatePositionDto.getProtein() > 0 &&
+                updatePositionDto.getFat() > 0 &&
+                updatePositionDto.getCarbohydrate() > 0;
     }
 }
