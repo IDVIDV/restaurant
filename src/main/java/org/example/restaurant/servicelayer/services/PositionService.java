@@ -7,8 +7,6 @@ import org.example.restaurant.datalayer.entities.Position;
 import org.example.restaurant.datalayer.mappers.PositionMapper;
 import org.example.restaurant.datalayer.repositories.PositionRepository;
 import org.example.restaurant.servicelayer.OperationResult;
-import org.example.restaurant.servicelayer.exceptions.InvalidEntityException;
-import org.example.restaurant.servicelayer.exceptions.InvalidIdException;
 import org.example.restaurant.servicelayer.validators.PositionValidator;
 
 import java.util.List;
@@ -82,7 +80,7 @@ public class PositionService {
 
     public OperationResult<Boolean> delete(Long id) {
         if (Objects.isNull(id) || id <= 0) {
-            throw new InvalidIdException("Provided id is invalid");
+            return new OperationResult<>("Invalid position id");
         }
 
         Boolean result = positionRepository.delete(id);

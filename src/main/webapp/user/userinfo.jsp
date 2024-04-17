@@ -8,7 +8,7 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <html>
 <head>
-    <title>Title</title>
+    <title>Профиль</title>
 </head>
 <body>
 <form method="post">
@@ -25,7 +25,9 @@
     <button type="submit">Сохранить</button>
 </form>
 <jsp:include page="/error.jsp"></jsp:include>
-<jsp:include page="/logoutlink.jsp"></jsp:include>
-<jsp:include page="/backtomainlink.jsp"></jsp:include>
+<jsp:include page="/orders-link.jsp"></jsp:include>
+<jsp:include page="/opened-order-link.jsp"></jsp:include>
+<jsp:include page="/logout-link.jsp"></jsp:include>
+<jsp:include page="/back-to-main-link.jsp"></jsp:include>
 </body>
 </html>

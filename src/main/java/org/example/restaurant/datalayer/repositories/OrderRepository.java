@@ -11,12 +11,18 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 
 public class OrderRepository {
-    private static final String TABLE_NAME = "order";
+    private static final String TABLE_NAME = "\"order\"";
     private static final String SELECT_ALL_QUERY = "SELECT * FROM " + TABLE_NAME;
+    private static final String SELECT_FINISHED_BY_USER_ID_QUERY = "SELECT * FROM " + TABLE_NAME +
+            " WHERE finished = true AND user_id = (?)";
+    private static final String SELECT_UNFINISHED_BY_USER_ID_QUERY = "SELECT * FROM " + TABLE_NAME +
+            " WHERE finished = false AND user_id = (?)";
     private static final String SELECT_BY_ID_QUERY = "SELECT * FROM " + TABLE_NAME + " WHERE id_order = (?)";
-    private static final String ADD_QUERY = "INSERT INTO " + TABLE_NAME + " VALUES (DEFAULT,(?),(?),(?),DEFAULT)";
+    private static final String SELECT_ALL_BY_USER_ID_QUERY = "SELECT * FROM " + TABLE_NAME + " WHERE user_id = (?)";
+    private static final String ADD_UNFINISHED_QUERY = "INSERT INTO " + TABLE_NAME + " VALUES (DEFAULT,(?),(?),(?),DEFAULT)";
     private static final String UPDATE_QUERY = "UPDATE " + TABLE_NAME + " SET user_id = (?), table_id = (?), " +
             "order_date = (?), finished = (?) WHERE id_order = (?)";
     private static final String DELETE_QUERY = "DELETE FROM " + TABLE_NAME + " WHERE id_order = (?)";
@@ -46,8 +52,18 @@ public class OrderRepository {
 
     protected void prepareStatement(Order order, PreparedStatement statement) throws SQLException {
         statement.setLong(1, order.getUserId());
-        statement.setLong(2, order.getTable().getId());
-        statement.setDate(3, order.getOrderDate());
+
+        if (Objects.isNull(order.getTable())) {
+            statement.setObject(2, null);
+        } else {
+            statement.setLong(2, order.getTable().getId());
+        }
+
+        if (Objects.isNull(order.getOrderDate())) {
+            statement.setObject(3, null);
+        } else {
+            statement.setDate(3, order.getOrderDate());
+        }
     }
 
     public List<Order> getAll() {
@@ -59,6 +75,48 @@ public class OrderRepository {
 
             while (resultSet.next()) {
                 result.add(mapEntityFromResultSet(resultSet));
+            }
+
+        } catch (SQLException e) {
+            throw new DataBaseException(e.getMessage());
+        }
+
+        return result;
+    }
+
+    public List<Order> getFinishedByUserId(Long userId) {
+        List<Order> result = new ArrayList<>();
+
+        try (Connection connection = connectionProvider.getConnection()) {
+            PreparedStatement statement = connection.prepareStatement(SELECT_FINISHED_BY_USER_ID_QUERY);
+
+            statement.setLong(1, userId);
+
+            ResultSet resultSet = statement.executeQuery();
+
+            while (resultSet.next()) {
+                result.add(mapEntityFromResultSet(resultSet));
+            }
+
+        } catch (SQLException e) {
+            throw new DataBaseException(e.getMessage());
+        }
+
+        return result;
+    }
+
+    public Order getUnfinishedByUserId(Long userId) {
+        Order result = null;
+
+        try (Connection connection = connectionProvider.getConnection()) {
+            PreparedStatement statement = connection.prepareStatement(SELECT_UNFINISHED_BY_USER_ID_QUERY);
+
+            statement.setLong(1, userId);
+
+            ResultSet resultSet = statement.executeQuery();
+
+            if (resultSet.next()) {
+                result = mapEntityFromResultSet(resultSet);
             }
 
         } catch (SQLException e) {
@@ -91,7 +149,7 @@ public class OrderRepository {
 
     public Order add(Order order) {
         try (Connection connection = connectionProvider.getConnection()) {
-            PreparedStatement statement = connection.prepareStatement(ADD_QUERY, Statement.RETURN_GENERATED_KEYS);
+            PreparedStatement statement = connection.prepareStatement(ADD_UNFINISHED_QUERY, Statement.RETURN_GENERATED_KEYS);
 
             prepareStatement(order, statement);
 

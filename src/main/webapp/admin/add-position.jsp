@@ -13,8 +13,8 @@
 </head>
 <body>
 <jsp:include page="/logininfo.jsp"></jsp:include>
-<jsp:include page="/profilelink.jsp"></jsp:include>
-<jsp:include page="/logoutlink.jsp"></jsp:include>
+<jsp:include page="/profile-link.jsp"></jsp:include>
+<jsp:include page="/logout-link.jsp"></jsp:include>
 <form method="post">
     <label>
         Название
@@ -59,6 +59,6 @@
     <button type="submit">Сохранить</button>
 </form>
 <jsp:include page="/error.jsp"></jsp:include>
-<jsp:include page="/backtomainlink.jsp"></jsp:include>
+<jsp:include page="/back-to-main-link.jsp"></jsp:include>
 </body>
 </html>

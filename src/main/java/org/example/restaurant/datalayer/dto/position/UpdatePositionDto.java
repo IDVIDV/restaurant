@@ -3,7 +3,7 @@ package org.example.restaurant.datalayer.dto.position;
 import java.math.BigDecimal;
 
 public class UpdatePositionDto {
-    private Long Id;
+    private Long id;
     private String positionName;
     private BigDecimal price;
     private Double weight;
@@ -14,11 +14,11 @@ public class UpdatePositionDto {
     private String ingredients;
 
     public Long getId() {
-        return Id;
+        return id;
     }
 
     public void setId(Long id) {
-        Id = id;
+        this.id = id;
     }
 
     public String getPositionName() {

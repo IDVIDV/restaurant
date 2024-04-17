@@ -20,9 +20,13 @@ public class AdminFilter implements Filter {
         //TODO
         UserDto user = (UserDto) ((HttpServletRequest) servletRequest).getSession().getAttribute("user");
         if (Objects.isNull(user)) {
-            ((HttpServletResponse) servletResponse).sendRedirect(((HttpServletRequest) servletRequest).getContextPath() + "/login");
+            servletRequest.setAttribute("error", "Login as admin required to perform action");
+            servletRequest.getRequestDispatcher("/login").forward(servletRequest, servletResponse);
+            //((HttpServletResponse) servletResponse).sendRedirect(((HttpServletRequest) servletRequest).getContextPath() + "/login");
         } else if (!user.getRole().equals("admin")) {
-            ((HttpServletResponse) servletResponse).sendRedirect(((HttpServletRequest) servletRequest).getContextPath());
+            servletRequest.setAttribute("error", "Login as admin required to perform action");
+            servletRequest.getRequestDispatcher("/").forward(servletRequest, servletResponse);
+            //((HttpServletResponse) servletResponse).sendRedirect(((HttpServletRequest) servletRequest).getContextPath());
         } else {
             filterChain.doFilter(servletRequest, servletResponse);
         }

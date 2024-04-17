@@ -1,5 +1,7 @@
 package org.example.restaurant.datalayer.entities;
 
+import org.example.restaurant.datalayer.dto.table.TableDto;
+
 import java.sql.Date;
 
 public class Order extends Entity {

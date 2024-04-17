@@ -30,6 +30,6 @@
     <button type="submit">Зарегистрироваться</button>
 </form>
 <jsp:include page="error.jsp"></jsp:include>
-<jsp:include page="backtomainlink.jsp"></jsp:include>
+<jsp:include page="back-to-main-link.jsp"></jsp:include>
 </body>
 </html>

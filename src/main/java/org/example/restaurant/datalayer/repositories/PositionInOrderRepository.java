@@ -15,15 +15,24 @@ import java.util.List;
 public class PositionInOrderRepository {
     private static final String TABLE_NAME = "position_in_order";
     private static final String SELECT_ALL_QUERY = "SELECT * FROM " + TABLE_NAME;
+    private static final String SELECT_ALL_BY_ORDER_ID_QUERY = "SELECT * FROM " + TABLE_NAME + " WHERE order_id = (?)";
     private static final String SELECT_BY_ID_QUERY = "SELECT * FROM " + TABLE_NAME + " WHERE id_pio = (?)";
+    private static final String SELECT_BY_ORDER_AND_POSITION_ID_QUERY = "SELECT * FROM " + TABLE_NAME +
+            " WHERE order_id = (?) AND position_id = (?)";
     private static final String ADD_QUERY = "INSERT INTO " + TABLE_NAME + " VALUES (DEFAULT,(?),(?),(?))";
     private static final String UPDATE_QUERY = "UPDATE " + TABLE_NAME + " SET position_id = (?), order_id = (?), " +
             "position_count = (?) WHERE id_pio = (?)";
     private static final String DELETE_QUERY = "DELETE FROM " + TABLE_NAME + " WHERE id_pio = (?)";
     private final ConnectionProvider connectionProvider;
+    private final PositionRepository positionRepository;
+    private final OrderRepository orderRepository;
 
-    public PositionInOrderRepository(ConnectionProvider connectionProvider) {
+    public PositionInOrderRepository(ConnectionProvider connectionProvider,
+                                     PositionRepository positionRepository,
+                                     OrderRepository orderRepository) {
         this.connectionProvider = connectionProvider;
+        this.positionRepository = positionRepository;
+        this.orderRepository = orderRepository;
     }
 
     protected PositionInOrder mapEntityFromResultSet(ResultSet resultSet) {
@@ -34,6 +43,8 @@ public class PositionInOrderRepository {
             positionInOrder.setPositionId(resultSet.getLong("position_id"));
             positionInOrder.setOrderId(resultSet.getLong("order_id"));
             positionInOrder.setPositionCount(resultSet.getInt("position_count"));
+            positionInOrder.setPosition(positionRepository.getById(positionInOrder.getPositionId()));
+            positionInOrder.setOrder(orderRepository.getById(positionInOrder.getOrderId()));
         } catch (SQLException e) {
             throw new DataBaseException(e.getMessage());
         }
@@ -65,6 +76,27 @@ public class PositionInOrderRepository {
         return result;
     }
 
+    public List<PositionInOrder> getAllByOrderId(Long orderId) {
+        List<PositionInOrder> result = new ArrayList<>();
+
+        try (Connection connection = connectionProvider.getConnection()) {
+            PreparedStatement statement = connection.prepareStatement(SELECT_ALL_BY_ORDER_ID_QUERY);
+
+            statement.setLong(1, orderId);
+
+            ResultSet resultSet = statement.executeQuery();
+
+            while (resultSet.next()) {
+                result.add(mapEntityFromResultSet(resultSet));
+            }
+
+        } catch (SQLException e) {
+            throw new DataBaseException(e.getMessage());
+        }
+
+        return result;
+    }
+
     public PositionInOrder getById(Long id) {
         PositionInOrder result = null;
 
@@ -72,6 +104,28 @@ public class PositionInOrderRepository {
             PreparedStatement statement = connection.prepareStatement(SELECT_BY_ID_QUERY);
 
             statement.setLong(1, id);
+
+            ResultSet resultSet = statement.executeQuery();
+
+            if (resultSet.next()) {
+                result = mapEntityFromResultSet(resultSet);
+            }
+
+        } catch (SQLException e) {
+            throw new DataBaseException(e.getMessage());
+        }
+
+        return result;
+    }
+
+    public PositionInOrder getByOrderAndPositionId(Long orderId, Long positionId) {
+        PositionInOrder result = null;
+
+        try (Connection connection = connectionProvider.getConnection()) {
+            PreparedStatement statement = connection.prepareStatement(SELECT_BY_ORDER_AND_POSITION_ID_QUERY);
+
+            statement.setLong(1, orderId);
+            statement.setLong(2, positionId);
 
             ResultSet resultSet = statement.executeQuery();
 

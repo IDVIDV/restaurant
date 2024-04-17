@@ -9,12 +9,14 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <html>
 <head>
-    <title>Title</title>
+    <title>Блюдо <c:out value="${position.positionName}"></c:out></title>
 </head>
 <body>
 <jsp:include page="logininfo.jsp"></jsp:include>
-<jsp:include page="profilelink.jsp"></jsp:include>
-<jsp:include page="logoutlink.jsp"></jsp:include>
+<jsp:include page="profile-link.jsp"></jsp:include>
+<jsp:include page="orders-link.jsp"></jsp:include>
+<jsp:include page="opened-order-link.jsp"></jsp:include>
+<jsp:include page="logout-link.jsp"></jsp:include>
 <div>
     <div>Название: <c:out value="${position.positionName}"></c:out></div>
     <div>Цена: ${position.price}</div>
@@ -33,7 +35,10 @@
         </form>
     </c:if>
 </div>
+<jsp:include page="add-to-order-link.jsp">
+    <jsp:param name="positionId" value="${position.id}"/>
+</jsp:include>
 <jsp:include page="error.jsp"></jsp:include>
-<jsp:include page="backtomainlink.jsp"></jsp:include>
+<jsp:include page="back-to-main-link.jsp"></jsp:include>
 </body>
 </html>

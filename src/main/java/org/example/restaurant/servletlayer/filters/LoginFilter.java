@@ -2,6 +2,7 @@ package org.example.restaurant.servletlayer.filters;
 
 import jakarta.servlet.*;
 import jakarta.servlet.annotation.WebFilter;
+import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 
@@ -14,7 +15,9 @@ public class LoginFilter implements Filter {
     public void doFilter(ServletRequest servletRequest, ServletResponse servletResponse, FilterChain filterChain) throws IOException, ServletException {
         Object user = ((HttpServletRequest) servletRequest).getSession().getAttribute("user");
         if (Objects.isNull(user)) {
-            ((HttpServletResponse) servletResponse).sendRedirect(((HttpServletRequest) servletRequest).getContextPath() + "/login");
+            servletRequest.setAttribute("error", "Login required to perform action");
+            servletRequest.getRequestDispatcher("/login").forward(servletRequest, servletResponse);
+            //((HttpServletResponse) servletResponse).sendRedirect(((HttpServletRequest) servletRequest).getContextPath() + "/login");
         } else {
             filterChain.doFilter(servletRequest, servletResponse);
         }

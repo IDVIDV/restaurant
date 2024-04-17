@@ -17,6 +17,7 @@ public class PositionRepository {
     private static final String SELECT_ALL_QUERY = "SELECT * FROM " + TABLE_NAME;
     private static final String SELECT_ALL_BY_NAME_QUERY = "SELECT * FROM " + TABLE_NAME + " WHERE position_name LIKE (?)";
     private static final String SELECT_BY_ID_QUERY = "SELECT * FROM " + TABLE_NAME + " WHERE id_position = (?)";
+    private static final String SELECT_ALL_BY_ID_LIST_QUERY = "SELECT * FROM " + TABLE_NAME + " WHERE id_position IN (?)";
     private static final String ADD_QUERY = "INSERT INTO " + TABLE_NAME + " VALUES (DEFAULT,(?),(?),(?),(?),(?),(?),(?),(?))";
     private static final String UPDATE_QUERY = "UPDATE " + TABLE_NAME + " SET position_name = (?), " +
             "price = (?), weight = (?), protein = (?), fat = (?), carbohydrate = (?), vegan = (?), ingredients = (?) " +
@@ -109,6 +110,27 @@ public class PositionRepository {
 
             if (resultSet.next()) {
                 result = mapEntityFromResultSet(resultSet);
+            }
+
+        } catch (SQLException e) {
+            throw new DataBaseException(e.getMessage());
+        }
+
+        return result;
+    }
+
+    public List<Position> getByIdList(List<Long> idList) {
+        List<Position> result = null;
+
+        try (Connection connection = connectionProvider.getConnection()) {
+            PreparedStatement statement = connection.prepareStatement(SELECT_ALL_BY_ID_LIST_QUERY);
+
+            statement.setArray(1, connection.createArrayOf("Long", idList.toArray()));
+
+            ResultSet resultSet = statement.executeQuery();
+
+            while (resultSet.next()) {
+                result.add(mapEntityFromResultSet(resultSet));
             }
 
         } catch (SQLException e) {
