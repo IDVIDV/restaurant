@@ -1,0 +1,60 @@
+CREATE DATABASE restaurant;
+
+CREATE TABLE "user"(
+	id_user BIGSERIAL PRIMARY KEY,
+	login TEXT NOT NULL UNIQUE,
+	"password" TEXT NOT NULL,
+	phone_number TEXT UNIQUE,
+	"role" TEXT NOT NULL DEFAULT('user')
+);
+
+CREATE INDEX login_index ON "user" (login);
+
+CREATE TABLE "table"(
+	id_table BIGSERIAL PRIMARY KEY,
+	table_number INTEGER NOT NULL,
+	capacity INTEGER DEFAULT(1) NOT NULL
+);
+
+CREATE TABLE "position"(
+	id_position BIGSERIAL PRIMARY KEY,
+	position_name TEXT,
+	price DECIMAL NOT NULL,	
+	weight FLOAT,
+	
+	protein FLOAT,
+	fat FLOAT,
+	carbohydrate FLOAT,	
+	
+	vegan BOOLEAN DEFAULT(false),
+	ingredients TEXT
+);
+
+CREATE INDEX position_name_index ON "position" (position_name);
+
+CREATE TABLE "order"(
+	id_order BIGSERIAL PRIMARY KEY,
+	user_id BIGINT NOT NULL,
+	table_id BIGINT,
+	order_date DATE,
+	finished BOOLEAN NOT NULL DEFAULT(false),
+	CONSTRAINT order_unique_reserved_table UNIQUE(table_id, order_date)
+	CONSTRAINT order_user_id_fk FOREIGN KEY (user_id) REFERENCES "user"(id_user) ON DELETE CASCADE,
+	CONSTRAINT order_table_id_fk FOREIGN KEY (table_id) REFERENCES "table"(id_table) ON DELETE CASCADE
+);
+
+CREATE INDEX order_finished_index ON "order" (finished);
+CREATE INDEX order_user_id_fk_index ON "order" (user_id);
+CREATE INDEX order_table_id_fk_index ON "order" (table_id);
+
+CREATE TABLE position_in_order(
+	id_pio BIGSERIAL PRIMARY KEY,
+	position_id BIGINT NOT NULL,
+	order_id BIGINT NOT NULL,
+	position_count INTEGER,
+	CONSTRAINT pio_position_id_fk FOREIGN KEY (position_id) REFERENCES "position"(id_position) ON DELETE CASCADE,
+	CONSTRAINT pio_order_id_fk FOREIGN KEY (order_id) REFERENCES "order"(id_order) ON DELETE CASCADE
+);
+
+CREATE INDEX pio_order_id_fk_index ON position_in_order (order_id);
+CREATE INDEX pio_position_id_fk_index ON position_in_order (position_id);
