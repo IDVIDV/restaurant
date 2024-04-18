@@ -12,6 +12,10 @@
     <title>Корзина</title>
 </head>
 <body>
+<jsp:include page="/logininfo.jsp"></jsp:include>
+<jsp:include page="/profile-link.jsp"></jsp:include>
+<jsp:include page="/logout-link.jsp"></jsp:include>
+<jsp:include page="/error.jsp"></jsp:include>
 <div>
     <form method="post">
         <input hidden="hidden" name="orderId" value="${order.id}">
@@ -53,5 +57,7 @@
         </c:forEach>
     </div>
 </div>
+<jsp:include page="/error.jsp"></jsp:include>
+<jsp:include page="/back-to-main-link.jsp"></jsp:include>
 </body>
 </html>

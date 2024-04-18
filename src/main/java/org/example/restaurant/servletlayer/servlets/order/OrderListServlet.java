@@ -1,15 +1,14 @@
 package org.example.restaurant.servletlayer.servlets.order;
 
-import jakarta.servlet.ServletConfig;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.example.restaurant.datalayer.ConnectionProvider;
+import org.example.restaurant.datalayer.ConnectionProviderImpl;
 import org.example.restaurant.datalayer.dto.order.OrderDto;
 import org.example.restaurant.datalayer.dto.user.UserDto;
-import org.example.restaurant.datalayer.entities.Order;
 import org.example.restaurant.datalayer.exceptions.DataBaseException;
 import org.example.restaurant.datalayer.mappers.OrderMapper;
 import org.example.restaurant.datalayer.mappers.PositionInOrderMapper;
@@ -30,7 +29,7 @@ public class OrderListServlet extends HttpServlet {
 
     @Override
     public void init() throws ServletException {
-        ConnectionProvider connectionProvider = ConnectionProvider.getInstance();
+        ConnectionProvider connectionProvider = ConnectionProviderImpl.getInstance();
         TableRepository tableRepository = new TableRepository(connectionProvider);
         PositionRepository positionRepository = new PositionRepository(connectionProvider);
         OrderRepository orderRepository = new OrderRepository(connectionProvider, tableRepository);

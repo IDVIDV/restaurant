@@ -13,6 +13,7 @@
 </head>
 <body>
 <jsp:include page="logininfo.jsp"></jsp:include>
+<jsp:include page="register-link.jsp"></jsp:include>
 <jsp:include page="profile-link.jsp"></jsp:include>
 <jsp:include page="logout-link.jsp"></jsp:include>
 <jsp:include page="error.jsp"></jsp:include>

@@ -17,7 +17,6 @@ public class PositionRepository {
     private static final String SELECT_ALL_QUERY = "SELECT * FROM " + TABLE_NAME;
     private static final String SELECT_ALL_BY_NAME_QUERY = "SELECT * FROM " + TABLE_NAME + " WHERE position_name LIKE (?)";
     private static final String SELECT_BY_ID_QUERY = "SELECT * FROM " + TABLE_NAME + " WHERE id_position = (?)";
-    private static final String SELECT_ALL_BY_ID_LIST_QUERY = "SELECT * FROM " + TABLE_NAME + " WHERE id_position IN (?)";
     private static final String ADD_QUERY = "INSERT INTO " + TABLE_NAME + " VALUES (DEFAULT,(?),(?),(?),(?),(?),(?),(?),(?))";
     private static final String UPDATE_QUERY = "UPDATE " + TABLE_NAME + " SET position_name = (?), " +
             "price = (?), weight = (?), protein = (?), fat = (?), carbohydrate = (?), vegan = (?), ingredients = (?) " +
@@ -27,37 +26,6 @@ public class PositionRepository {
 
     public PositionRepository(ConnectionProvider connectionProvider) {
         this.connectionProvider = connectionProvider;
-    }
-
-    protected Position mapEntityFromResultSet(ResultSet resultSet) {
-        Position position = new Position();
-
-        try {
-            position.setId(resultSet.getLong("id_position"));
-            position.setPositionName(resultSet.getString("position_name"));
-            position.setPrice(resultSet.getBigDecimal("price"));
-            position.setWeight(resultSet.getDouble("weight"));
-            position.setProtein(resultSet.getDouble("protein"));
-            position.setFat(resultSet.getDouble("fat"));
-            position.setCarbohydrate(resultSet.getDouble("carbohydrate"));
-            position.setVegan(resultSet.getBoolean("vegan"));
-            position.setIngredients(resultSet.getString("ingredients"));
-        } catch (SQLException e) {
-            throw new DataBaseException(e.getMessage());
-        }
-
-        return position;
-    }
-
-    protected void prepareStatement(Position position, PreparedStatement statement) throws SQLException {
-        statement.setString(1, position.getPositionName());
-        statement.setBigDecimal(2, position.getPrice());
-        statement.setDouble(3, position.getWeight());
-        statement.setDouble(4, position.getProtein());
-        statement.setDouble(5, position.getFat());
-        statement.setDouble(6, position.getCarbohydrate());
-        statement.setBoolean(7, position.isVegan());
-        statement.setString(8, position.getIngredients());
     }
 
     public List<Position> getAll() {
@@ -119,27 +87,6 @@ public class PositionRepository {
         return result;
     }
 
-    public List<Position> getByIdList(List<Long> idList) {
-        List<Position> result = null;
-
-        try (Connection connection = connectionProvider.getConnection()) {
-            PreparedStatement statement = connection.prepareStatement(SELECT_ALL_BY_ID_LIST_QUERY);
-
-            statement.setArray(1, connection.createArrayOf("Long", idList.toArray()));
-
-            ResultSet resultSet = statement.executeQuery();
-
-            while (resultSet.next()) {
-                result.add(mapEntityFromResultSet(resultSet));
-            }
-
-        } catch (SQLException e) {
-            throw new DataBaseException(e.getMessage());
-        }
-
-        return result;
-    }
-
     public Position add(Position position) {
         try (Connection connection = connectionProvider.getConnection()) {
             PreparedStatement statement = connection.prepareStatement(ADD_QUERY, Statement.RETURN_GENERATED_KEYS);
@@ -185,5 +132,36 @@ public class PositionRepository {
         } catch (SQLException e) {
             throw new DataBaseException(e.getMessage());
         }
+    }
+
+    private Position mapEntityFromResultSet(ResultSet resultSet) {
+        Position position = new Position();
+
+        try {
+            position.setId(resultSet.getLong("id_position"));
+            position.setPositionName(resultSet.getString("position_name"));
+            position.setPrice(resultSet.getBigDecimal("price"));
+            position.setWeight(resultSet.getDouble("weight"));
+            position.setProtein(resultSet.getDouble("protein"));
+            position.setFat(resultSet.getDouble("fat"));
+            position.setCarbohydrate(resultSet.getDouble("carbohydrate"));
+            position.setVegan(resultSet.getBoolean("vegan"));
+            position.setIngredients(resultSet.getString("ingredients"));
+        } catch (SQLException e) {
+            throw new DataBaseException(e.getMessage());
+        }
+
+        return position;
+    }
+
+    private void prepareStatement(Position position, PreparedStatement statement) throws SQLException {
+        statement.setString(1, position.getPositionName());
+        statement.setBigDecimal(2, position.getPrice());
+        statement.setDouble(3, position.getWeight());
+        statement.setDouble(4, position.getProtein());
+        statement.setDouble(5, position.getFat());
+        statement.setDouble(6, position.getCarbohydrate());
+        statement.setBoolean(7, position.isVegan());
+        statement.setString(8, position.getIngredients());
     }
 }

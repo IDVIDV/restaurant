@@ -38,7 +38,7 @@ CREATE TABLE "order"(
 	table_id BIGINT,
 	order_date DATE,
 	finished BOOLEAN NOT NULL DEFAULT(false),
-	CONSTRAINT order_unique_reserved_table UNIQUE(table_id, order_date)
+	CONSTRAINT order_unique_reserved_table UNIQUE(table_id, order_date),
 	CONSTRAINT order_user_id_fk FOREIGN KEY (user_id) REFERENCES "user"(id_user) ON DELETE CASCADE,
 	CONSTRAINT order_table_id_fk FOREIGN KEY (table_id) REFERENCES "table"(id_table) ON DELETE CASCADE
 );

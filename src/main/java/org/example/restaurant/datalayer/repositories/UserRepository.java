@@ -27,28 +27,6 @@ public class UserRepository {
         this.connectionProvider = connectionProvider;
     }
 
-    protected User mapEntityFromResultSet(ResultSet resultSet) {
-        User user = new User();
-
-        try {
-            user.setId(resultSet.getLong("id_user"));
-            user.setLogin(resultSet.getString("login"));
-            user.setPassword(resultSet.getString("password"));
-            user.setPhoneNumber(resultSet.getString("phone_number"));
-            user.setRole(resultSet.getString("role"));
-        } catch (SQLException e) {
-            throw new DataBaseException(e.getMessage());
-        }
-
-        return user;
-    }
-
-    protected void prepareStatement(User user, PreparedStatement statement) throws SQLException {
-        statement.setString(1, user.getLogin());
-        statement.setString(2, user.getPassword());
-        statement.setString(3, user.getPhoneNumber());
-    }
-
     public List<User> getAll() {
         List<User> result = new ArrayList<>();
 
@@ -155,6 +133,28 @@ public class UserRepository {
         } catch (SQLException e) {
             throw new DataBaseException(e.getMessage());
         }
+    }
+
+    private User mapEntityFromResultSet(ResultSet resultSet) {
+        User user = new User();
+
+        try {
+            user.setId(resultSet.getLong("id_user"));
+            user.setLogin(resultSet.getString("login"));
+            user.setPassword(resultSet.getString("password"));
+            user.setPhoneNumber(resultSet.getString("phone_number"));
+            user.setRole(resultSet.getString("role"));
+        } catch (SQLException e) {
+            throw new DataBaseException(e.getMessage());
+        }
+
+        return user;
+    }
+
+    private void prepareStatement(User user, PreparedStatement statement) throws SQLException {
+        statement.setString(1, user.getLogin());
+        statement.setString(2, user.getPassword());
+        statement.setString(3, user.getPhoneNumber());
     }
 }
 

@@ -26,25 +26,6 @@ public class TableRepository {
         this.connectionProvider = connectionProvider;
     }
 
-    protected Table mapEntityFromResultSet(ResultSet resultSet) {
-        Table table = new Table();
-
-        try {
-            table.setId(resultSet.getLong("id_table"));
-            table.setTableNumber(resultSet.getInt("table_number"));
-            table.setCapacity(resultSet.getInt("capacity"));
-        } catch (SQLException e) {
-            throw new DataBaseException(e.getMessage());
-        }
-
-        return table;
-    }
-
-    protected void prepareStatement(Table table, PreparedStatement statement) throws SQLException {
-        statement.setInt(1, table.getTableNumber());
-        statement.setInt(2, table.getCapacity());
-    }
-
     public List<Table> getAll() {
         List<Table> result = new ArrayList<>();
 
@@ -130,5 +111,24 @@ public class TableRepository {
         } catch (SQLException e) {
             throw new DataBaseException(e.getMessage());
         }
+    }
+
+    private Table mapEntityFromResultSet(ResultSet resultSet) {
+        Table table = new Table();
+
+        try {
+            table.setId(resultSet.getLong("id_table"));
+            table.setTableNumber(resultSet.getInt("table_number"));
+            table.setCapacity(resultSet.getInt("capacity"));
+        } catch (SQLException e) {
+            throw new DataBaseException(e.getMessage());
+        }
+
+        return table;
+    }
+
+    private void prepareStatement(Table table, PreparedStatement statement) throws SQLException {
+        statement.setInt(1, table.getTableNumber());
+        statement.setInt(2, table.getCapacity());
     }
 }

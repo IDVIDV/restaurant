@@ -35,29 +35,6 @@ public class PositionInOrderRepository {
         this.orderRepository = orderRepository;
     }
 
-    protected PositionInOrder mapEntityFromResultSet(ResultSet resultSet) {
-        PositionInOrder positionInOrder = new PositionInOrder();
-
-        try {
-            positionInOrder.setId(resultSet.getLong("id_pio"));
-            positionInOrder.setPositionId(resultSet.getLong("position_id"));
-            positionInOrder.setOrderId(resultSet.getLong("order_id"));
-            positionInOrder.setPositionCount(resultSet.getInt("position_count"));
-            positionInOrder.setPosition(positionRepository.getById(positionInOrder.getPositionId()));
-            positionInOrder.setOrder(orderRepository.getById(positionInOrder.getOrderId()));
-        } catch (SQLException e) {
-            throw new DataBaseException(e.getMessage());
-        }
-
-        return positionInOrder;
-    }
-
-    protected void prepareStatement(PositionInOrder positionInOrder, PreparedStatement statement) throws SQLException {
-        statement.setLong(1, positionInOrder.getPositionId());
-        statement.setLong(2, positionInOrder.getOrderId());
-        statement.setInt(3, positionInOrder.getPositionCount());
-    }
-
     public List<PositionInOrder> getAll() {
         List<PositionInOrder> result = new ArrayList<>();
 
@@ -186,5 +163,28 @@ public class PositionInOrderRepository {
         } catch (SQLException e) {
             throw new DataBaseException(e.getMessage());
         }
+    }
+
+    private PositionInOrder mapEntityFromResultSet(ResultSet resultSet) {
+        PositionInOrder positionInOrder = new PositionInOrder();
+
+        try {
+            positionInOrder.setId(resultSet.getLong("id_pio"));
+            positionInOrder.setPositionId(resultSet.getLong("position_id"));
+            positionInOrder.setOrderId(resultSet.getLong("order_id"));
+            positionInOrder.setPositionCount(resultSet.getInt("position_count"));
+            positionInOrder.setPosition(positionRepository.getById(positionInOrder.getPositionId()));
+            positionInOrder.setOrder(orderRepository.getById(positionInOrder.getOrderId()));
+        } catch (SQLException e) {
+            throw new DataBaseException(e.getMessage());
+        }
+
+        return positionInOrder;
+    }
+
+    private void prepareStatement(PositionInOrder positionInOrder, PreparedStatement statement) throws SQLException {
+        statement.setLong(1, positionInOrder.getPositionId());
+        statement.setLong(2, positionInOrder.getOrderId());
+        statement.setInt(3, positionInOrder.getPositionCount());
     }
 }

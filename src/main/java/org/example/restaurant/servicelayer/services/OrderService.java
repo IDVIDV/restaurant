@@ -36,6 +36,20 @@ public class OrderService {
         this.positionInOrderRepository = positionInOrderRepository;
     }
 
+    public OperationResult<OrderDto> getById(Long orderId) {
+        if (Objects.isNull(orderId) || orderId <= 0) {
+            return new OperationResult<>("Invalid order id");
+        }
+
+        OrderDto order = orderMapper.map(orderRepository.getById(orderId));
+
+        if (Objects.isNull(order)) {
+            return new OperationResult<>("Order with given id does not exist");
+        }
+
+        return new OperationResult<>(order);
+    }
+
     public OperationResult<List<OrderDto>> getFinishedOrders(Long userId) {
         if (Objects.isNull(userId) || userId <= 0) {
             return new OperationResult<>("Invalid user id");
@@ -194,19 +208,5 @@ public class OrderService {
         orderRepository.update(orderToFinish);
 
         return new OperationResult<>(true);
-    }
-
-    public OperationResult<OrderDto> getById(Long orderId) {
-        if (Objects.isNull(orderId) || orderId <= 0) {
-            return new OperationResult<>("Invalid order id");
-        }
-
-        OrderDto order = orderMapper.map(orderRepository.getById(orderId));
-
-        if (Objects.isNull(order)) {
-            return new OperationResult<>("Order with given id does not exist");
-        }
-
-        return new OperationResult<>(order);
     }
 }

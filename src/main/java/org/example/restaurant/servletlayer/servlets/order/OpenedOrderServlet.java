@@ -6,6 +6,7 @@ import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.example.restaurant.datalayer.ConnectionProvider;
+import org.example.restaurant.datalayer.ConnectionProviderImpl;
 import org.example.restaurant.datalayer.dto.order.CloseUnfinishedOrderDto;
 import org.example.restaurant.datalayer.dto.order.OrderDto;
 import org.example.restaurant.datalayer.dto.order.PositionInOrderDto;
@@ -35,7 +36,7 @@ public class OpenedOrderServlet extends HttpServlet {
 
     @Override
     public void init() throws ServletException {
-        ConnectionProvider connectionProvider = ConnectionProvider.getInstance();
+        ConnectionProvider connectionProvider = ConnectionProviderImpl.getInstance();
         TableRepository tableRepository = new TableRepository(connectionProvider);
         PositionRepository positionRepository = new PositionRepository(connectionProvider);
         OrderRepository orderRepository = new OrderRepository(connectionProvider, tableRepository);

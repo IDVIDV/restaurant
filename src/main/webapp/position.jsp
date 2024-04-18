@@ -1,5 +1,5 @@
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
-<%@ page import="org.example.restaurant.datalayer.entities.Position" %><%--
+<%--
   Created by IntelliJ IDEA.
   User: IDV
   Date: 08.04.2024
@@ -13,6 +13,7 @@
 </head>
 <body>
 <jsp:include page="logininfo.jsp"></jsp:include>
+<jsp:include page="register-link.jsp"></jsp:include>
 <jsp:include page="profile-link.jsp"></jsp:include>
 <jsp:include page="orders-link.jsp"></jsp:include>
 <jsp:include page="opened-order-link.jsp"></jsp:include>

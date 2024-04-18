@@ -7,26 +7,40 @@ import org.example.restaurant.datalayer.entities.User;
 import org.example.restaurant.datalayer.mappers.UserMapper;
 import org.example.restaurant.datalayer.repositories.UserRepository;
 import org.example.restaurant.servicelayer.OperationResult;
+import org.example.restaurant.servicelayer.PasswordHasher;
+import org.example.restaurant.servicelayer.PasswordHasherImpl;
 import org.example.restaurant.servicelayer.validators.UserValidator;
 
+import java.io.IOException;
 import java.util.Objects;
+import java.util.Properties;
 
 public class UserService {
+    private final PasswordHasher passwordHasher;
     private final UserValidator userValidator;
     private final UserMapper userMapper;
     private final UserRepository userRepository;
+    private final Properties properties;
 
-    public UserService(UserValidator userValidator, UserMapper userMapper,
-                       UserRepository userRepository) {
+    public UserService(PasswordHasherImpl passwordHasher, UserValidator userValidator,
+                       UserMapper userMapper, UserRepository userRepository) {
+        this.passwordHasher = passwordHasher;
         this.userValidator = userValidator;
         this.userMapper = userMapper;
         this.userRepository = userRepository;
+        this.properties = new Properties();
+        try {
+            this.properties.load(Thread.currentThread().getContextClassLoader()
+                    .getResourceAsStream("app.properties"));
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     public OperationResult<UserDto> login(String login, String password) {
         User loggingUser = userRepository.getByLogin(login);
 
-        if (Objects.isNull(loggingUser) || !loggingUser.getPassword().equals(getPasswordHash(password))) {
+        if (Objects.isNull(loggingUser) || !checkPassword(password, loggingUser.getPassword())) {
             return new OperationResult<>("Invalid login or password");
         }
 
@@ -44,9 +58,26 @@ public class UserService {
             return new OperationResult<>("Login is hold by another user");
         }
 
-        User registeredUser = userRepository.add(userMapper.map(addUserDto));
+        User registeredUser = userMapper.map(addUserDto);
+        registeredUser.setPassword(getPasswordHash(registeredUser.getPassword()));
+
+        registeredUser = userRepository.add(registeredUser);
 
         return new OperationResult<>(userMapper.map(registeredUser));
+    }
+
+    public OperationResult<UserDto> getById(Long id) {
+        if (Objects.isNull(id) || id < 1) {
+            return new OperationResult<>("Invalid id");
+        }
+
+        User user = userRepository.getById(id);
+
+        if (Objects.isNull(user)) {
+            return new OperationResult<>("No user with given id");
+        }
+
+        return new OperationResult<>(userMapper.map(user));
     }
 
     public OperationResult<UserDto> update(UpdateUserDto updateUserDto) {
@@ -70,36 +101,11 @@ public class UserService {
         return new OperationResult<>(userMapper.map(updatedUser));
     }
 
-    public OperationResult<UserDto> getByLogin(String login) {
-        if (Objects.isNull(login) || login.isEmpty()) {
-            return new OperationResult<>("Invalid login");
-        }
-
-        User user = userRepository.getByLogin(login);
-
-        if (Objects.isNull(user)) {
-            return new OperationResult<>("No user with given login");
-        }
-
-        return new OperationResult<>(userMapper.map(user));
-    }
-
-    public OperationResult<UserDto> getById(Long id) {
-        if (Objects.isNull(id) || id < 1) {
-            return new OperationResult<>("Invalid id");
-        }
-
-        User user = userRepository.getById(id);
-
-        if (Objects.isNull(user)) {
-            return new OperationResult<>("No user with given id");
-        }
-
-        return new OperationResult<>(userMapper.map(user));
-    }
-
-    //TODO соль
     private String getPasswordHash(String password) {
-        return password;
+        return passwordHasher.hash(password, properties.getProperty("salt"));
+    }
+
+    private Boolean checkPassword(String candidate, String hashed) {
+        return passwordHasher.check(candidate, properties.getProperty("salt"), hashed);
     }
 }

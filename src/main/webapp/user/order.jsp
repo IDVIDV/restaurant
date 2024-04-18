@@ -1,3 +1,4 @@
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%--
   Created by IntelliJ IDEA.
   User: IDV
@@ -11,9 +12,13 @@
     <title>Заказ</title>
 </head>
 <body>
+<jsp:include page="/logininfo.jsp"></jsp:include>
+<jsp:include page="/profile-link.jsp"></jsp:include>
+<jsp:include page="/logout-link.jsp"></jsp:include>
+<jsp:include page="/error.jsp"></jsp:include>
 <div>
     <div>Дата: ${order.orderDate}</div>
-    <div>Номер столика: ${order.table.tableNumber}</div>
+    <div>Номер столика: ${order.tableDto.tableNumber}</div>
     <div>
         Блюда:
         <br>
@@ -24,15 +29,10 @@
                     <p>Количество: ${positionInOrder.positionCount}</p>
                 </section>
             </a>
-
-            <jsp:include page="/add-to-order-link.jsp">
-                <jsp:param name="positionId" value="${positionInOrder.position.id}"/>
-            </jsp:include>
-            <jsp:include page="/remove-from-order-link.jsp">
-                <jsp:param name="positionId" value="${positionInOrder.position.id}"/>
-            </jsp:include>
         </c:forEach>
     </div>
 </div>
+<jsp:include page="/error.jsp"></jsp:include>
+<jsp:include page="/back-to-main-link.jsp"></jsp:include>
 </body>
 </html>

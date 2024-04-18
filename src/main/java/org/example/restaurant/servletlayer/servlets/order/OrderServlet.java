@@ -6,9 +6,9 @@ import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.example.restaurant.datalayer.ConnectionProvider;
+import org.example.restaurant.datalayer.ConnectionProviderImpl;
 import org.example.restaurant.datalayer.dto.order.OrderDto;
 import org.example.restaurant.datalayer.dto.order.PositionInOrderDto;
-import org.example.restaurant.datalayer.entities.Order;
 import org.example.restaurant.datalayer.exceptions.DataBaseException;
 import org.example.restaurant.datalayer.mappers.OrderMapper;
 import org.example.restaurant.datalayer.mappers.PositionInOrderMapper;
@@ -29,7 +29,7 @@ public class OrderServlet extends HttpServlet {
 
     @Override
     public void init() throws ServletException {
-        ConnectionProvider connectionProvider = ConnectionProvider.getInstance();
+        ConnectionProvider connectionProvider = ConnectionProviderImpl.getInstance();
         TableRepository tableRepository = new TableRepository(connectionProvider);
         PositionRepository positionRepository = new PositionRepository(connectionProvider);
         OrderRepository orderRepository = new OrderRepository(connectionProvider, tableRepository);
@@ -48,7 +48,7 @@ public class OrderServlet extends HttpServlet {
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        Long orderId = (Long) req.getAttribute("orderId");
+        Long orderId = Long.parseLong(req.getParameter("orderId"));
         OperationResult<List<PositionInOrderDto>> positionsResult;
         OperationResult<OrderDto> orderResult;
 
@@ -66,7 +66,7 @@ public class OrderServlet extends HttpServlet {
             req.getRequestDispatcher("order.jsp").forward(req, resp);
         } else {
             req.setAttribute("error", positionsResult.getFailReason());
-            req.getRequestDispatcher("").forward(req, resp);
+            req.getRequestDispatcher("/user/orders").forward(req, resp);
         }
     }
 }

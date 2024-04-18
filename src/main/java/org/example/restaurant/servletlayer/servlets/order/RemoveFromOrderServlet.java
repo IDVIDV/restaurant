@@ -6,7 +6,7 @@ import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.example.restaurant.datalayer.ConnectionProvider;
-import org.example.restaurant.datalayer.dto.order.PositionInOrderDto;
+import org.example.restaurant.datalayer.ConnectionProviderImpl;
 import org.example.restaurant.datalayer.dto.user.UserDto;
 import org.example.restaurant.datalayer.exceptions.DataBaseException;
 import org.example.restaurant.datalayer.mappers.OrderMapper;
@@ -27,7 +27,7 @@ public class RemoveFromOrderServlet extends HttpServlet {
 
     @Override
     public void init() throws ServletException {
-        ConnectionProvider connectionProvider = ConnectionProvider.getInstance();
+        ConnectionProvider connectionProvider = ConnectionProviderImpl.getInstance();
         TableRepository tableRepository = new TableRepository(connectionProvider);
         PositionRepository positionRepository = new PositionRepository(connectionProvider);
         OrderRepository orderRepository = new OrderRepository(connectionProvider, tableRepository);

@@ -5,7 +5,7 @@ import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import org.example.restaurant.datalayer.ConnectionProvider;
+import org.example.restaurant.datalayer.ConnectionProviderImpl;
 import org.example.restaurant.datalayer.dto.position.PositionDto;
 import org.example.restaurant.datalayer.exceptions.DataBaseException;
 import org.example.restaurant.datalayer.mappers.PositionMapper;
@@ -24,7 +24,7 @@ public class PositionServlet extends HttpServlet {
     public void init() {
         positionService = new PositionService(PositionValidator.getInstance(),
                 PositionMapper.getInstance(),
-                new PositionRepository(ConnectionProvider.getInstance()));
+                new PositionRepository(ConnectionProviderImpl.getInstance()));
     }
 
     @Override

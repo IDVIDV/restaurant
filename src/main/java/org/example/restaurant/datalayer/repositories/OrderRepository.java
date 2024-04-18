@@ -21,7 +21,6 @@ public class OrderRepository {
     private static final String SELECT_UNFINISHED_BY_USER_ID_QUERY = "SELECT * FROM " + TABLE_NAME +
             " WHERE finished = false AND user_id = (?)";
     private static final String SELECT_BY_ID_QUERY = "SELECT * FROM " + TABLE_NAME + " WHERE id_order = (?)";
-    private static final String SELECT_ALL_BY_USER_ID_QUERY = "SELECT * FROM " + TABLE_NAME + " WHERE user_id = (?)";
     private static final String ADD_UNFINISHED_QUERY = "INSERT INTO " + TABLE_NAME + " VALUES (DEFAULT,(?),(?),(?),DEFAULT)";
     private static final String UPDATE_QUERY = "UPDATE " + TABLE_NAME + " SET user_id = (?), table_id = (?), " +
             "order_date = (?), finished = (?) WHERE id_order = (?)";
@@ -32,38 +31,6 @@ public class OrderRepository {
     public OrderRepository(ConnectionProvider connectionProvider, TableRepository tableRepository) {
         this.connectionProvider = connectionProvider;
         this.tableRepository = tableRepository;
-    }
-
-    protected Order mapEntityFromResultSet(ResultSet resultSet) {
-        Order order = new Order();
-
-        try {
-            order.setId(resultSet.getLong("id_order"));
-            order.setUserId(resultSet.getLong("user_id"));
-            order.setTable(tableRepository.getById(resultSet.getLong("table_id")));
-            order.setOrderDate(resultSet.getDate("order_date"));
-            order.setFinished(resultSet.getBoolean("finished"));
-        } catch (SQLException e) {
-            throw new DataBaseException(e.getMessage());
-        }
-
-        return order;
-    }
-
-    protected void prepareStatement(Order order, PreparedStatement statement) throws SQLException {
-        statement.setLong(1, order.getUserId());
-
-        if (Objects.isNull(order.getTable())) {
-            statement.setObject(2, null);
-        } else {
-            statement.setLong(2, order.getTable().getId());
-        }
-
-        if (Objects.isNull(order.getOrderDate())) {
-            statement.setObject(3, null);
-        } else {
-            statement.setDate(3, order.getOrderDate());
-        }
     }
 
     public List<Order> getAll() {
@@ -193,6 +160,38 @@ public class OrderRepository {
             return statement.executeUpdate() == 1;
         } catch (SQLException e) {
             throw new DataBaseException(e.getMessage());
+        }
+    }
+
+    private Order mapEntityFromResultSet(ResultSet resultSet) {
+        Order order = new Order();
+
+        try {
+            order.setId(resultSet.getLong("id_order"));
+            order.setUserId(resultSet.getLong("user_id"));
+            order.setTable(tableRepository.getById(resultSet.getLong("table_id")));
+            order.setOrderDate(resultSet.getDate("order_date"));
+            order.setFinished(resultSet.getBoolean("finished"));
+        } catch (SQLException e) {
+            throw new DataBaseException(e.getMessage());
+        }
+
+        return order;
+    }
+
+    private void prepareStatement(Order order, PreparedStatement statement) throws SQLException {
+        statement.setLong(1, order.getUserId());
+
+        if (Objects.isNull(order.getTable())) {
+            statement.setObject(2, null);
+        } else {
+            statement.setLong(2, order.getTable().getId());
+        }
+
+        if (Objects.isNull(order.getOrderDate())) {
+            statement.setObject(3, null);
+        } else {
+            statement.setDate(3, order.getOrderDate());
         }
     }
 }
