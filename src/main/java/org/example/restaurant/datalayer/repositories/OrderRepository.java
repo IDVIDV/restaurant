@@ -21,7 +21,7 @@ public class OrderRepository {
     private static final String SELECT_UNFINISHED_BY_USER_ID_QUERY = "SELECT * FROM " + TABLE_NAME +
             " WHERE finished = false AND user_id = (?)";
     private static final String SELECT_BY_ID_QUERY = "SELECT * FROM " + TABLE_NAME + " WHERE id_order = (?)";
-    private static final String ADD_UNFINISHED_QUERY = "INSERT INTO " + TABLE_NAME + " VALUES (DEFAULT,(?),(?),(?),DEFAULT)";
+    private static final String ADD_UNFINISHED_QUERY = "INSERT INTO " + TABLE_NAME + " VALUES (DEFAULT,(?),(?),(?),(?))";
     private static final String UPDATE_QUERY = "UPDATE " + TABLE_NAME + " SET user_id = (?), table_id = (?), " +
             "order_date = (?), finished = (?) WHERE id_order = (?)";
     private static final String DELETE_QUERY = "DELETE FROM " + TABLE_NAME + " WHERE id_order = (?)";
@@ -57,7 +57,7 @@ public class OrderRepository {
         try (Connection connection = connectionProvider.getConnection()) {
             PreparedStatement statement = connection.prepareStatement(SELECT_FINISHED_BY_USER_ID_QUERY);
 
-            statement.setLong(1, userId);
+            statement.setObject(1, userId);
 
             ResultSet resultSet = statement.executeQuery();
 
@@ -78,7 +78,7 @@ public class OrderRepository {
         try (Connection connection = connectionProvider.getConnection()) {
             PreparedStatement statement = connection.prepareStatement(SELECT_UNFINISHED_BY_USER_ID_QUERY);
 
-            statement.setLong(1, userId);
+            statement.setObject(1, userId);
 
             ResultSet resultSet = statement.executeQuery();
 
@@ -99,7 +99,7 @@ public class OrderRepository {
         try (Connection connection = connectionProvider.getConnection()) {
             PreparedStatement statement = connection.prepareStatement(SELECT_BY_ID_QUERY);
 
-            statement.setLong(1, id);
+            statement.setObject(1, id);
 
             ResultSet resultSet = statement.executeQuery();
 
@@ -140,8 +140,7 @@ public class OrderRepository {
             PreparedStatement statement = connection.prepareStatement(UPDATE_QUERY);
 
             prepareStatement(order, statement);
-            statement.setBoolean(4, order.isFinished());
-            statement.setLong(5, order.getId());
+            statement.setObject(5, order.getId());
 
             statement.executeUpdate();
         } catch (SQLException e) {
@@ -155,7 +154,7 @@ public class OrderRepository {
         try (Connection connection = connectionProvider.getConnection()) {
             PreparedStatement statement = connection.prepareStatement(DELETE_QUERY);
 
-            statement.setLong(1, id);
+            statement.setObject(1, id);
 
             return statement.executeUpdate() == 1;
         } catch (SQLException e) {
@@ -180,8 +179,7 @@ public class OrderRepository {
     }
 
     private void prepareStatement(Order order, PreparedStatement statement) throws SQLException {
-        statement.setLong(1, order.getUserId());
-
+        statement.setObject(1, order.getUserId());
         if (Objects.isNull(order.getTable())) {
             statement.setObject(2, null);
         } else {
@@ -193,5 +191,6 @@ public class OrderRepository {
         } else {
             statement.setDate(3, order.getOrderDate());
         }
+        statement.setObject(4, order.isFinished());
     }
 }

@@ -5,6 +5,8 @@ import org.example.restaurant.datalayer.dto.user.UpdateUserDto;
 import org.example.restaurant.datalayer.dto.user.UserDto;
 import org.example.restaurant.datalayer.entities.User;
 
+import java.util.Objects;
+
 public class UserMapper {
     private static final UserMapper INSTANCE = new UserMapper();
 
@@ -16,6 +18,10 @@ public class UserMapper {
     }
 
     public User map(AddUserDto addUserDto) {
+        if (Objects.isNull(addUserDto)) {
+            return null;
+        }
+
         User user = new User();
         user.setLogin(addUserDto.getLogin());
         user.setPassword(addUserDto.getPassword());
@@ -24,6 +30,10 @@ public class UserMapper {
     }
 
     public User map(UpdateUserDto updateUserDto) {
+        if (Objects.isNull(updateUserDto)) {
+            return null;
+        }
+
         User user = new User();
         user.setId(updateUserDto.getId());
         user.setLogin(updateUserDto.getLogin());
@@ -32,6 +42,10 @@ public class UserMapper {
     }
 
     public UserDto map(User user) {
+        if (Objects.isNull(user)) {
+            return null;
+        }
+
         UserDto userDto = new UserDto();
         userDto.setId(user.getId());
         userDto.setLogin(user.getLogin());

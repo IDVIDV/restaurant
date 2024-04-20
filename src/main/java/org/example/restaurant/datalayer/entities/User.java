@@ -1,10 +1,24 @@
 package org.example.restaurant.datalayer.entities;
 
+import java.util.Objects;
+
 public class User extends Entity {
     private String login;
     private String password;
     private String phoneNumber;
     private String role;
+
+    public User() {
+    }
+
+    public User(Long id, String login, String password,
+                String phoneNumber, String role) {
+        super(id);
+        this.login = login;
+        this.password = password;
+        this.phoneNumber = phoneNumber;
+        this.role = role;
+    }
 
     public String getLogin() {
         return login;
@@ -36,5 +50,18 @@ public class User extends Entity {
 
     public void setRole(String role) {
         this.role = role;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        User user = (User) o;
+        return Objects.equals(login, user.login) && Objects.equals(password, user.password) && Objects.equals(phoneNumber, user.phoneNumber) && Objects.equals(role, user.role);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(login, password, phoneNumber, role);
     }
 }

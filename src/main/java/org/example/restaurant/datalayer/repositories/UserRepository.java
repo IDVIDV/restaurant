@@ -17,9 +17,9 @@ public class UserRepository {
     private static final String SELECT_ALL_QUERY = "SELECT * FROM " + TABLE_NAME;
     private static final String SELECT_BY_ID_QUERY = "SELECT * FROM " + TABLE_NAME + " WHERE id_user = (?)";
     private static final String SELECT_BY_LOGIN_QUERY = "SELECT * FROM " + TABLE_NAME + " WHERE login = (?)";
-    private static final String ADD_QUERY = "INSERT INTO " + TABLE_NAME + " VALUES (DEFAULT,(?),(?),(?),'user')";
+    private static final String ADD_QUERY = "INSERT INTO " + TABLE_NAME + " VALUES (DEFAULT,(?),(?),(?),(?))";
     private static final String UPDATE_QUERY = "UPDATE " + TABLE_NAME + " SET login = (?), password = (?)," +
-            "phone_number = (?), role = 'user' WHERE id_user = (?)";
+            "phone_number = (?), role = (?) WHERE id_user = (?)";
     private static final String DELETE_QUERY = "DELETE FROM " + TABLE_NAME + " WHERE id_user = (?)";
     private final ConnectionProvider connectionProvider;
 
@@ -113,7 +113,7 @@ public class UserRepository {
             PreparedStatement statement = connection.prepareStatement(UPDATE_QUERY);
 
             prepareStatement(user, statement);
-            statement.setLong(4, user.getId());
+            statement.setObject(5, user.getId());
 
             statement.executeUpdate();
         } catch (SQLException e) {
@@ -127,7 +127,7 @@ public class UserRepository {
         try (Connection connection = connectionProvider.getConnection()) {
             PreparedStatement statement = connection.prepareStatement(DELETE_QUERY);
 
-            statement.setLong(1, id);
+            statement.setObject(1, id);
 
             return statement.executeUpdate() == 1;
         } catch (SQLException e) {
@@ -152,9 +152,10 @@ public class UserRepository {
     }
 
     private void prepareStatement(User user, PreparedStatement statement) throws SQLException {
-        statement.setString(1, user.getLogin());
-        statement.setString(2, user.getPassword());
-        statement.setString(3, user.getPhoneNumber());
+        statement.setObject(1, user.getLogin());
+        statement.setObject(2, user.getPassword());
+        statement.setObject(3, user.getPhoneNumber());
+        statement.setObject(4, user.getRole());
     }
 }
 

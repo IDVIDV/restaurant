@@ -3,6 +3,8 @@ package org.example.restaurant.datalayer.mappers;
 import org.example.restaurant.datalayer.dto.order.PositionInOrderDto;
 import org.example.restaurant.datalayer.entities.PositionInOrder;
 
+import java.util.Objects;
+
 public class PositionInOrderMapper {
     private final PositionMapper positionMapper;
     private final OrderMapper orderMapper;
@@ -18,6 +20,10 @@ public class PositionInOrderMapper {
     }
 
     public PositionInOrderDto map(PositionInOrder positionInOrder) {
+        if (Objects.isNull(positionInOrder)) {
+            return null;
+        }
+
         PositionInOrderDto positionInOrderDto = new PositionInOrderDto();
         positionInOrderDto.setId(positionInOrder.getId());
         positionInOrderDto.setPositionCount(positionInOrder.getPositionCount());

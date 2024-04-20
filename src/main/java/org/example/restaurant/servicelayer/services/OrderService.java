@@ -79,6 +79,7 @@ public class OrderService {
 
         Order openedOrder = new Order();
         openedOrder.setUserId(userId);
+        openedOrder.setFinished(false);
 
         openedOrder = orderRepository.add(openedOrder);
 
@@ -155,6 +156,7 @@ public class OrderService {
             positionInOrder = new PositionInOrder();
             positionInOrder.setOrderId(unfinishedOrder.getId());
             positionInOrder.setPositionId(positionId);
+            positionInOrder.setPosition(positionRepository.getById(positionId));
             positionInOrder.setPositionCount(1);
             positionInOrder = positionInOrderRepository.add(positionInOrder);
         } else {

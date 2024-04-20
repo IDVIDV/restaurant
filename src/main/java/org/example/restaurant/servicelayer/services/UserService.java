@@ -59,6 +59,7 @@ public class UserService {
         }
 
         User registeredUser = userMapper.map(addUserDto);
+        registeredUser.setRole("user");
         registeredUser.setPassword(getPasswordHash(registeredUser.getPassword()));
 
         registeredUser = userRepository.add(registeredUser);

@@ -17,7 +17,6 @@ public class LoginFilter implements Filter {
         if (Objects.isNull(user)) {
             servletRequest.setAttribute("error", "Login required to perform action");
             servletRequest.getRequestDispatcher("/login").forward(servletRequest, servletResponse);
-            //((HttpServletResponse) servletResponse).sendRedirect(((HttpServletRequest) servletRequest).getContextPath() + "/login");
         } else {
             filterChain.doFilter(servletRequest, servletResponse);
         }

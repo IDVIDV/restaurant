@@ -12,7 +12,7 @@ CREATE INDEX login_index ON "user" (login);
 
 CREATE TABLE "table"(
 	id_table BIGSERIAL PRIMARY KEY,
-	table_number INTEGER NOT NULL,
+	table_number INTEGER NOT NULL UNIQUE,
 	capacity INTEGER DEFAULT(1) NOT NULL
 );
 

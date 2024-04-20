@@ -1,14 +1,25 @@
 package org.example.restaurant.datalayer.entities;
 
-import org.example.restaurant.datalayer.dto.table.TableDto;
-
 import java.sql.Date;
+import java.util.Objects;
 
 public class Order extends Entity {
     private Long userId;
     private Table table;
     private Date orderDate;
     private Boolean isFinished;
+
+    public Order() {
+    }
+
+    public Order(Long id, Long userId, Table table,
+                 Date orderDate, Boolean isFinished) {
+        super(id);
+        this.userId = userId;
+        this.table = table;
+        this.orderDate = orderDate;
+        this.isFinished = isFinished;
+    }
 
     public Long getUserId() {
         return userId;
@@ -40,5 +51,19 @@ public class Order extends Entity {
 
     public void setFinished(Boolean finished) {
         isFinished = finished;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        if (!super.equals(o)) return false;
+        Order order = (Order) o;
+        return Objects.equals(userId, order.userId) && Objects.equals(table, order.table) && Objects.equals(orderDate, order.orderDate) && Objects.equals(isFinished, order.isFinished);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(super.hashCode(), userId, table, orderDate, isFinished);
     }
 }

@@ -72,7 +72,7 @@ public class PositionRepository {
         try (Connection connection = connectionProvider.getConnection()) {
             PreparedStatement statement = connection.prepareStatement(SELECT_BY_ID_QUERY);
 
-            statement.setLong(1, id);
+            statement.setObject(1, id);
 
             ResultSet resultSet = statement.executeQuery();
 
@@ -112,7 +112,7 @@ public class PositionRepository {
             PreparedStatement statement = connection.prepareStatement(UPDATE_QUERY);
 
             prepareStatement(position, statement);
-            statement.setLong(9, position.getId());
+            statement.setObject(9, position.getId());
 
             statement.executeUpdate();
         } catch (SQLException e) {
@@ -126,7 +126,7 @@ public class PositionRepository {
         try (Connection connection = connectionProvider.getConnection()) {
             PreparedStatement statement = connection.prepareStatement(DELETE_QUERY);
 
-            statement.setLong(1, id);
+            statement.setObject(1, id);
 
             return statement.executeUpdate() == 1;
         } catch (SQLException e) {
@@ -155,13 +155,13 @@ public class PositionRepository {
     }
 
     private void prepareStatement(Position position, PreparedStatement statement) throws SQLException {
-        statement.setString(1, position.getPositionName());
+        statement.setObject(1, position.getPositionName());
         statement.setBigDecimal(2, position.getPrice());
-        statement.setDouble(3, position.getWeight());
-        statement.setDouble(4, position.getProtein());
-        statement.setDouble(5, position.getFat());
-        statement.setDouble(6, position.getCarbohydrate());
-        statement.setBoolean(7, position.isVegan());
-        statement.setString(8, position.getIngredients());
+        statement.setObject(3, position.getWeight());
+        statement.setObject(4, position.getProtein());
+        statement.setObject(5, position.getFat());
+        statement.setObject(6, position.getCarbohydrate());
+        statement.setObject(7, position.isVegan());
+        statement.setObject(8, position.getIngredients());
     }
 }

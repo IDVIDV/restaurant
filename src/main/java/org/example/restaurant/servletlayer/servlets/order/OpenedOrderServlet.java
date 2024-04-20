@@ -91,7 +91,7 @@ public class OpenedOrderServlet extends HttpServlet {
                 CloseUnfinishedOrderDto closeUnfinishedOrderDto = new CloseUnfinishedOrderDto();
                 closeUnfinishedOrderDto.setId(Long.parseLong(req.getParameter("orderId")));
                 closeUnfinishedOrderDto.setUserId(Long.parseLong(req.getParameter("userId")));
-                closeUnfinishedOrderDto.setOrderDate(Date.valueOf(req.getParameter("orderDate")));
+                closeUnfinishedOrderDto.setOrderDate(Date.valueOf(req.getParameter("orderDate")));  //TODO некорректная дата (переполнение по году)
                 closeUnfinishedOrderDto.setTable(tableResult.getResult());
 
                 closeResult = orderService.closeOpenedOrder(closeUnfinishedOrderDto);

@@ -80,7 +80,7 @@ public class PositionInOrderRepository {
         try (Connection connection = connectionProvider.getConnection()) {
             PreparedStatement statement = connection.prepareStatement(SELECT_BY_ID_QUERY);
 
-            statement.setLong(1, id);
+            statement.setObject(1, id);
 
             ResultSet resultSet = statement.executeQuery();
 
@@ -101,8 +101,8 @@ public class PositionInOrderRepository {
         try (Connection connection = connectionProvider.getConnection()) {
             PreparedStatement statement = connection.prepareStatement(SELECT_BY_ORDER_AND_POSITION_ID_QUERY);
 
-            statement.setLong(1, orderId);
-            statement.setLong(2, positionId);
+            statement.setObject(1, orderId);
+            statement.setObject(2, positionId);
 
             ResultSet resultSet = statement.executeQuery();
 
@@ -143,7 +143,7 @@ public class PositionInOrderRepository {
             PreparedStatement statement = connection.prepareStatement(UPDATE_QUERY);
 
             prepareStatement(positionInOrder, statement);
-            statement.setLong(4, positionInOrder.getId());
+            statement.setObject(4, positionInOrder.getId());
 
             statement.executeUpdate();
         } catch (SQLException e) {
@@ -157,7 +157,7 @@ public class PositionInOrderRepository {
         try (Connection connection = connectionProvider.getConnection()) {
             PreparedStatement statement = connection.prepareStatement(DELETE_QUERY);
 
-            statement.setLong(1, id);
+            statement.setObject(1, id);
 
             return statement.executeUpdate() == 1;
         } catch (SQLException e) {
@@ -183,8 +183,8 @@ public class PositionInOrderRepository {
     }
 
     private void prepareStatement(PositionInOrder positionInOrder, PreparedStatement statement) throws SQLException {
-        statement.setLong(1, positionInOrder.getPositionId());
-        statement.setLong(2, positionInOrder.getOrderId());
-        statement.setInt(3, positionInOrder.getPositionCount());
+        statement.setObject(1, positionInOrder.getPositionId());
+        statement.setObject(2, positionInOrder.getOrderId());
+        statement.setObject(3, positionInOrder.getPositionCount());
     }
 }

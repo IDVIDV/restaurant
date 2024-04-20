@@ -5,6 +5,8 @@ import org.example.restaurant.datalayer.dto.position.PositionDto;
 import org.example.restaurant.datalayer.dto.position.UpdatePositionDto;
 import org.example.restaurant.datalayer.entities.Position;
 
+import java.util.Objects;
+
 public class PositionMapper {
     private static final PositionMapper INSTANCE = new PositionMapper();
 
@@ -16,6 +18,10 @@ public class PositionMapper {
     }
 
     public Position map(AddPositionDto addPositionDto) {
+        if (Objects.isNull(addPositionDto)) {
+            return null;
+        }
+
         Position position = new Position();
         position.setPositionName(addPositionDto.getPositionName());
         position.setPrice(addPositionDto.getPrice());
@@ -29,6 +35,10 @@ public class PositionMapper {
     }
 
     public Position map(UpdatePositionDto updatePositionDto) {
+        if (Objects.isNull(updatePositionDto)) {
+            return null;
+        }
+
         Position position = new Position();
         position.setId(updatePositionDto.getId());
         position.setPositionName(updatePositionDto.getPositionName());
@@ -43,6 +53,10 @@ public class PositionMapper {
     }
 
     public PositionDto map(Position position) {
+        if (Objects.isNull(position)) {
+            return null;
+        }
+
         PositionDto positionDto = new PositionDto();
         positionDto.setId(position.getId());
         positionDto.setPositionName(position.getPositionName());

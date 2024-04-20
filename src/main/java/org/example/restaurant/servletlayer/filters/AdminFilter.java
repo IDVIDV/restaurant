@@ -17,16 +17,13 @@ import java.util.Objects;
 public class AdminFilter implements Filter {
     @Override
     public void doFilter(ServletRequest servletRequest, ServletResponse servletResponse, FilterChain filterChain) throws IOException, ServletException {
-        //TODO
         UserDto user = (UserDto) ((HttpServletRequest) servletRequest).getSession().getAttribute("user");
         if (Objects.isNull(user)) {
             servletRequest.setAttribute("error", "Login as admin required to perform action");
             servletRequest.getRequestDispatcher("/login").forward(servletRequest, servletResponse);
-            //((HttpServletResponse) servletResponse).sendRedirect(((HttpServletRequest) servletRequest).getContextPath() + "/login");
         } else if (!user.getRole().equals("admin")) {
             servletRequest.setAttribute("error", "Login as admin required to perform action");
             servletRequest.getRequestDispatcher("/").forward(servletRequest, servletResponse);
-            //((HttpServletResponse) servletResponse).sendRedirect(((HttpServletRequest) servletRequest).getContextPath());
         } else {
             filterChain.doFilter(servletRequest, servletResponse);
         }

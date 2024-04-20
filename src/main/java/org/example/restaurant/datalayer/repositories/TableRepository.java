@@ -128,7 +128,7 @@ public class TableRepository {
     }
 
     private void prepareStatement(Table table, PreparedStatement statement) throws SQLException {
-        statement.setInt(1, table.getTableNumber());
-        statement.setInt(2, table.getCapacity());
+        statement.setObject(1, table.getTableNumber());
+        statement.setObject(2, table.getCapacity());
     }
 }
