@@ -108,18 +108,22 @@ public class PositionRepository {
     }
 
     public Position update(Position position) {
+        Position result = null;
         try (Connection connection = connectionProvider.getConnection()) {
             PreparedStatement statement = connection.prepareStatement(UPDATE_QUERY);
 
             prepareStatement(position, statement);
             statement.setObject(9, position.getId());
 
-            statement.executeUpdate();
+            if (statement.executeUpdate() == 1) {
+                result = position;
+            }
+
         } catch (SQLException e) {
             throw new DataBaseException(e.getMessage());
         }
 
-        return position;
+        return result;
     }
 
     public boolean delete(Long id) {

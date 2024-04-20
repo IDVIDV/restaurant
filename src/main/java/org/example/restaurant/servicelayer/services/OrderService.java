@@ -4,6 +4,7 @@ import org.example.restaurant.datalayer.dto.order.CloseUnfinishedOrderDto;
 import org.example.restaurant.datalayer.dto.order.OrderDto;
 import org.example.restaurant.datalayer.dto.order.PositionInOrderDto;
 import org.example.restaurant.datalayer.entities.Order;
+import org.example.restaurant.datalayer.entities.Position;
 import org.example.restaurant.datalayer.entities.PositionInOrder;
 import org.example.restaurant.datalayer.mappers.OrderMapper;
 import org.example.restaurant.datalayer.mappers.PositionInOrderMapper;
@@ -50,7 +51,7 @@ public class OrderService {
         return new OperationResult<>(order);
     }
 
-    public OperationResult<List<OrderDto>> getFinishedOrders(Long userId) {
+    public OperationResult<List<OrderDto>> getFinishedOrdersByUserId(Long userId) {
         if (Objects.isNull(userId) || userId <= 0) {
             return new OperationResult<>("Invalid user id");
         }
@@ -72,7 +73,7 @@ public class OrderService {
         return new OperationResult<>(result);
     }
 
-    public OperationResult<OrderDto> openNewOrder(Long userId) {
+    public OperationResult<OrderDto> openNewOrderByUserId(Long userId) {
         if (Objects.isNull(userId) || userId <= 0) {
             return new OperationResult<>("Invalid user id");
         }
@@ -83,10 +84,14 @@ public class OrderService {
 
         openedOrder = orderRepository.add(openedOrder);
 
+        if (Objects.isNull(openedOrder)) {
+            return new OperationResult<>("Couldn't open new order");
+        }
+
         return new OperationResult<>(orderMapper.map(openedOrder));
     }
 
-    public OperationResult<OrderDto> getUnfinishedOrder(Long userId) {
+    public OperationResult<OrderDto> getUnfinishedOrderByUserId(Long userId) {
         if (Objects.isNull(userId) || userId <= 0) {
             return new OperationResult<>("Invalid user id");
         }
@@ -94,7 +99,7 @@ public class OrderService {
         OrderDto unfinishedOrder = orderMapper.map(orderRepository.getUnfinishedByUserId(userId));
 
         if (Objects.isNull(unfinishedOrder)) {
-            OperationResult<OrderDto> openResult = openNewOrder(userId);
+            OperationResult<OrderDto> openResult = openNewOrderByUserId(userId);
 
             if (openResult.isSuccess()) {
                 unfinishedOrder = openResult.getResult();
@@ -106,7 +111,7 @@ public class OrderService {
         return new OperationResult<>(unfinishedOrder);
     }
 
-    public OperationResult<List<PositionInOrderDto>> getUnfinishedOrderPositions(Long userId) {
+    public OperationResult<List<PositionInOrderDto>> getUnfinishedOrderPositionsByUserId(Long userId) {
         if (Objects.isNull(userId) || userId <= 0) {
             return new OperationResult<>("Invalid user id");
         }
@@ -114,7 +119,7 @@ public class OrderService {
         OrderDto unfinishedOrder = orderMapper.map(orderRepository.getUnfinishedByUserId(userId));
 
         if (Objects.isNull(unfinishedOrder)) {
-            OperationResult<OrderDto> openResult = openNewOrder(userId);
+            OperationResult<OrderDto> openResult = openNewOrderByUserId(userId);
 
             if (openResult.isSuccess()) {
                 unfinishedOrder = openResult.getResult();
@@ -138,7 +143,9 @@ public class OrderService {
             return new OperationResult<>("Invalid position id");
         }
 
-        if (Objects.isNull(positionRepository.getById(positionId))) {
+        Position position = positionRepository.getById(positionId);
+
+        if (Objects.isNull(position)) {
             return new OperationResult<>("No position with given id");
         }
 
@@ -148,20 +155,29 @@ public class OrderService {
             Order order = new Order();
             order.setUserId(userId);
             unfinishedOrder = orderRepository.add(order);
+
+            if (Objects.isNull(unfinishedOrder)) {
+                return new OperationResult<>("Couldn't open new order");
+            }
         }
 
-        PositionInOrder positionInOrder = positionInOrderRepository.getByOrderAndPositionId(unfinishedOrder.getId(), positionId);
+        PositionInOrder positionInOrder = positionInOrderRepository
+                .getByOrderAndPositionId(unfinishedOrder.getId(), positionId);
 
         if (Objects.isNull(positionInOrder)) {
             positionInOrder = new PositionInOrder();
             positionInOrder.setOrderId(unfinishedOrder.getId());
             positionInOrder.setPositionId(positionId);
-            positionInOrder.setPosition(positionRepository.getById(positionId));
+            positionInOrder.setPosition(position);
             positionInOrder.setPositionCount(1);
             positionInOrder = positionInOrderRepository.add(positionInOrder);
         } else {
             positionInOrder.setPositionCount(positionInOrder.getPositionCount() + 1);
             positionInOrder = positionInOrderRepository.update(positionInOrder);
+        }
+
+        if (Objects.isNull(positionInOrder)) {
+            return new OperationResult<>("Couldn't add position to order");
         }
 
         return new OperationResult<>(positionInOrderMapper.map(positionInOrder));
@@ -192,9 +208,15 @@ public class OrderService {
             return new OperationResult<>("Position in opened order does not exist");
         } else if (positionInOrder.getPositionCount() > 1){
             positionInOrder.setPositionCount(positionInOrder.getPositionCount() - 1);
-            positionInOrderRepository.update(positionInOrder);
+            positionInOrder = positionInOrderRepository.update(positionInOrder);
         } else {
-            positionInOrderRepository.delete(positionInOrder.getId());
+            if (!positionInOrderRepository.delete(positionInOrder.getId())) {
+                return new OperationResult<>("Couldn't delete position from order");
+            }
+        }
+
+        if (Objects.isNull(positionInOrder)) {
+            return new OperationResult<>("Couldn't delete position from order");
         }
 
         return new OperationResult<>(true);
@@ -207,7 +229,11 @@ public class OrderService {
 
         Order orderToFinish = orderMapper.map(closeUnfinishedOrderDto);
 
-        orderRepository.update(orderToFinish);
+        orderToFinish = orderRepository.update(orderToFinish);
+
+        if (Objects.isNull(orderToFinish)) {
+            return new OperationResult<>("Couldn't close order");
+        }
 
         return new OperationResult<>(true);
     }

@@ -1,10 +1,22 @@
 package org.example.restaurant.datalayer.dto.user;
 
+import java.util.Objects;
+
 public class UserDto {
     private Long id;
     private String login;
     private String phoneNumber;
     private String role;
+
+    public UserDto() {
+    }
+
+    public UserDto(Long id, String login, String phoneNumber, String role) {
+        this.id = id;
+        this.login = login;
+        this.phoneNumber = phoneNumber;
+        this.role = role;
+    }
 
     public Long getId() {
         return id;
@@ -36,5 +48,21 @@ public class UserDto {
 
     public void setRole(String role) {
         this.role = role;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        UserDto userDto = (UserDto) o;
+        return Objects.equals(id, userDto.id) &&
+                Objects.equals(login, userDto.login) &&
+                Objects.equals(phoneNumber, userDto.phoneNumber) &&
+                Objects.equals(role, userDto.role);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id, login, phoneNumber, role);
     }
 }

@@ -62,8 +62,8 @@ public class OpenedOrderServlet extends HttpServlet {
         OperationResult<List<PositionInOrderDto>> resultPositions;
 
         try {
-            resultOrder = orderService.getUnfinishedOrder(user.getId());
-            resultPositions = orderService.getUnfinishedOrderPositions(user.getId());
+            resultOrder = orderService.getUnfinishedOrderByUserId(user.getId());
+            resultPositions = orderService.getUnfinishedOrderPositionsByUserId(user.getId());
         } catch (DataBaseException e) {
             resultOrder = new OperationResult<>("DataBase error: " + e.getMessage());
             resultPositions = new OperationResult<>("DataBase error: " + e.getMessage());
@@ -91,7 +91,7 @@ public class OpenedOrderServlet extends HttpServlet {
                 CloseUnfinishedOrderDto closeUnfinishedOrderDto = new CloseUnfinishedOrderDto();
                 closeUnfinishedOrderDto.setId(Long.parseLong(req.getParameter("orderId")));
                 closeUnfinishedOrderDto.setUserId(Long.parseLong(req.getParameter("userId")));
-                closeUnfinishedOrderDto.setOrderDate(Date.valueOf(req.getParameter("orderDate")));  //TODO некорректная дата (переполнение по году)
+                closeUnfinishedOrderDto.setOrderDate(Date.valueOf(req.getParameter("orderDate")));
                 closeUnfinishedOrderDto.setTable(tableResult.getResult());
 
                 closeResult = orderService.closeOpenedOrder(closeUnfinishedOrderDto);

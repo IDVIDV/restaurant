@@ -88,6 +88,8 @@ public class UserRepository {
     }
 
     public User add(User user) {
+        User result = null;
+
         try (Connection connection = connectionProvider.getConnection()) {
             PreparedStatement statement = connection.prepareStatement(ADD_QUERY, Statement.RETURN_GENERATED_KEYS);
 
@@ -99,28 +101,34 @@ public class UserRepository {
 
             if (generatedKeys.next()) {
                 user.setId(generatedKeys.getLong("id_user"));
+                result = user;
             }
 
         } catch (SQLException e) {
             throw new DataBaseException(e.getMessage());
         }
 
-        return user;
+        return result;
     }
 
     public User update(User user) {
+        User result = null;
+
         try (Connection connection = connectionProvider.getConnection()) {
             PreparedStatement statement = connection.prepareStatement(UPDATE_QUERY);
 
             prepareStatement(user, statement);
             statement.setObject(5, user.getId());
 
-            statement.executeUpdate();
+            if (statement.executeUpdate() == 1) {
+                result = user;
+            }
+
         } catch (SQLException e) {
             throw new DataBaseException(e.getMessage());
         }
 
-        return user;
+        return result;
     }
 
     public boolean delete(Long id) {

@@ -64,6 +64,10 @@ public class UserService {
 
         registeredUser = userRepository.add(registeredUser);
 
+        if (Objects.isNull(registeredUser)) {
+            return new OperationResult<>("Couldn't register user");
+        }
+
         return new OperationResult<>(userMapper.map(registeredUser));
     }
 
@@ -98,6 +102,10 @@ public class UserService {
         userToUpdate.setPassword(password);
 
         User updatedUser = userRepository.update(userToUpdate);
+
+        if (Objects.isNull(updatedUser)) {
+            return new OperationResult<>("Couldn't update user");
+        }
 
         return new OperationResult<>(userMapper.map(updatedUser));
     }

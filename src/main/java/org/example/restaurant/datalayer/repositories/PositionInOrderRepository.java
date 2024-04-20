@@ -118,6 +118,8 @@ public class PositionInOrderRepository {
     }
 
     public PositionInOrder add(PositionInOrder positionInOrder) {
+        PositionInOrder result = null;
+
         try (Connection connection = connectionProvider.getConnection()) {
             PreparedStatement statement = connection.prepareStatement(ADD_QUERY, Statement.RETURN_GENERATED_KEYS);
 
@@ -129,28 +131,34 @@ public class PositionInOrderRepository {
 
             if (generatedKeys.next()) {
                 positionInOrder.setId(generatedKeys.getLong("id_pio"));
+                result = positionInOrder;
             }
 
         } catch (SQLException e) {
             throw new DataBaseException(e.getMessage());
         }
 
-        return positionInOrder;
+        return result;
     }
 
     public PositionInOrder update(PositionInOrder positionInOrder) {
+        PositionInOrder result = null;
+
         try (Connection connection = connectionProvider.getConnection()) {
             PreparedStatement statement = connection.prepareStatement(UPDATE_QUERY);
 
             prepareStatement(positionInOrder, statement);
             statement.setObject(4, positionInOrder.getId());
 
-            statement.executeUpdate();
+            if (statement.executeUpdate() == 1) {
+                result = positionInOrder;
+            }
+
         } catch (SQLException e) {
             throw new DataBaseException(e.getMessage());
         }
 
-        return positionInOrder;
+        return result;
     }
 
     public boolean delete(Long id) {

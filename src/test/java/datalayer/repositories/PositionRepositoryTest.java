@@ -1,7 +1,6 @@
 package datalayer.repositories;
 
 import datalayer.TestConnectionProvider;
-import org.assertj.core.api.Assertions;
 import org.example.restaurant.datalayer.ConnectionProvider;
 import org.example.restaurant.datalayer.entities.Position;
 import org.example.restaurant.datalayer.exceptions.DataBaseException;
@@ -19,7 +18,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Stream;
 
-import static org.assertj.core.api.Assertions.*;
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 public class PositionRepositoryTest {
     final String RESET_TABLE_QUERY = "TRUNCATE position RESTART IDENTITY CASCADE";
@@ -141,9 +141,7 @@ public class PositionRepositoryTest {
     @ParameterizedTest
     @MethodSource("genInvalidPositions")
     void addInvalidPositionTest(Position pos) {
-        assertThatThrownBy(() -> {
-            positionRepository.add(pos);
-        }).isInstanceOf(DataBaseException.class);
+        assertThatThrownBy(() -> positionRepository.add(pos)).isInstanceOf(DataBaseException.class);
     }
 
     @Test

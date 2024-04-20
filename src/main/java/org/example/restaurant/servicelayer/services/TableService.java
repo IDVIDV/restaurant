@@ -1,6 +1,7 @@
 package org.example.restaurant.servicelayer.services;
 
 import org.example.restaurant.datalayer.dto.table.TableDto;
+import org.example.restaurant.datalayer.entities.Table;
 import org.example.restaurant.datalayer.mappers.TableMapper;
 import org.example.restaurant.datalayer.repositories.TableRepository;
 import org.example.restaurant.servicelayer.OperationResult;
@@ -25,6 +26,12 @@ public class TableService {
             return new OperationResult<>("Invalid table id");
         }
 
-        return new OperationResult<>(tableMapper.map(tableRepository.getById(tableId)));
+        Table table = tableRepository.getById(tableId);
+
+        if (Objects.isNull(table)) {
+            return new OperationResult<>("Table with given id does not exist");
+        }
+
+        return new OperationResult<>(tableMapper.map(table));
     }
 }

@@ -52,7 +52,7 @@ public class OrderListServlet extends HttpServlet {
         OperationResult<List<OrderDto>> result;
 
         try {
-            result = orderService.getFinishedOrders(user.getId());
+            result = orderService.getFinishedOrdersByUserId(user.getId());
         } catch (DataBaseException e) {
             result = new OperationResult<>("DataBase error: " + e.getMessage());
         }

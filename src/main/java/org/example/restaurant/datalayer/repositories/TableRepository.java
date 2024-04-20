@@ -66,6 +66,8 @@ public class TableRepository {
     }
 
     public Table add(Table table) {
+        Table result = null;
+
         try (Connection connection = connectionProvider.getConnection()) {
             PreparedStatement statement = connection.prepareStatement(ADD_QUERY, Statement.RETURN_GENERATED_KEYS);
 
@@ -77,28 +79,34 @@ public class TableRepository {
 
             if (generatedKeys.next()) {
                 table.setId(generatedKeys.getLong("id_table"));
+                result = table;
             }
 
         } catch (SQLException e) {
             throw new DataBaseException(e.getMessage());
         }
 
-        return table;
+        return result;
     }
 
     public Table update(Table table) {
+        Table result = null;
+
         try (Connection connection = connectionProvider.getConnection()) {
             PreparedStatement statement = connection.prepareStatement(UPDATE_QUERY);
 
             prepareStatement(table, statement);
             statement.setLong(3, table.getId());
 
-            statement.executeUpdate();
+            if (statement.executeUpdate() == 1) {
+                result = table;
+            }
+
         } catch (SQLException e) {
             throw new DataBaseException(e.getMessage());
         }
 
-        return table;
+        return result;
     }
 
     public boolean delete(Long id) {

@@ -1,6 +1,7 @@
 package org.example.restaurant.datalayer.dto.position;
 
 import java.math.BigDecimal;
+import java.util.Objects;
 
 public class AddPositionDto {
     private String positionName;
@@ -11,6 +12,23 @@ public class AddPositionDto {
     private Double carbohydrate;
     private Boolean isVegan;
     private String ingredients;
+
+    public AddPositionDto() {
+    }
+
+    public AddPositionDto(String positionName, BigDecimal price,
+                          Double weight, Double protein,
+                          Double fat, Double carbohydrate,
+                          Boolean isVegan, String ingredients) {
+        this.positionName = positionName;
+        this.price = price;
+        this.weight = weight;
+        this.protein = protein;
+        this.fat = fat;
+        this.carbohydrate = carbohydrate;
+        this.isVegan = isVegan;
+        this.ingredients = ingredients;
+    }
 
     public String getPositionName() {
         return positionName;
@@ -74,5 +92,28 @@ public class AddPositionDto {
 
     public void setIngredients(String ingredients) {
         this.ingredients = ingredients;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        AddPositionDto that = (AddPositionDto) o;
+        return Objects.equals(positionName, that.positionName) &&
+                Objects.equals(price, that.price) &&
+                Objects.equals(weight, that.weight) &&
+                Objects.equals(protein, that.protein) &&
+                Objects.equals(fat, that.fat) &&
+                Objects.equals(carbohydrate, that.carbohydrate) &&
+                Objects.equals(isVegan, that.isVegan) &&
+                Objects.equals(ingredients, that.ingredients);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(positionName, price,
+                weight, protein,
+                fat, carbohydrate,
+                isVegan, ingredients);
     }
 }

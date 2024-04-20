@@ -115,6 +115,8 @@ public class OrderRepository {
     }
 
     public Order add(Order order) {
+        Order result = null;
+
         try (Connection connection = connectionProvider.getConnection()) {
             PreparedStatement statement = connection.prepareStatement(ADD_UNFINISHED_QUERY, Statement.RETURN_GENERATED_KEYS);
 
@@ -126,28 +128,34 @@ public class OrderRepository {
 
             if (generatedKeys.next()) {
                 order.setId(generatedKeys.getLong("id_order"));
+                result = order;
             }
 
         } catch (SQLException e) {
             throw new DataBaseException(e.getMessage());
         }
 
-        return order;
+        return result;
     }
 
     public Order update(Order order) {
+        Order result = null;
+
         try (Connection connection = connectionProvider.getConnection()) {
             PreparedStatement statement = connection.prepareStatement(UPDATE_QUERY);
 
             prepareStatement(order, statement);
             statement.setObject(5, order.getId());
 
-            statement.executeUpdate();
+            if (statement.executeUpdate() == 1) {
+                result = order;
+            }
+
         } catch (SQLException e) {
             throw new DataBaseException(e.getMessage());
         }
 
-        return order;
+        return result;
     }
 
     public boolean delete(Long id) {
