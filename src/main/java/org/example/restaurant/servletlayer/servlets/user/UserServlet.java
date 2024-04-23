@@ -28,9 +28,9 @@ public class UserServlet extends HttpServlet {
         try {
             userService = new UserService(
                     new PasswordHasherImpl(),
-                    UserValidator.getInstance(),
-                    UserMapper.getInstance(),
-                    new UserRepository(ConnectionProviderImpl.getInstance())
+                    new UserValidator(),
+                    new UserMapper(),
+                    new UserRepository(new ConnectionProviderImpl())
             );
         } catch (NoSuchAlgorithmException e) {
             throw new RuntimeException(e);

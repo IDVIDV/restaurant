@@ -23,7 +23,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 public class PositionRepositoryTest {
     final String RESET_TABLE_QUERY = "TRUNCATE position RESTART IDENTITY CASCADE";
-    final ConnectionProvider connectionProvider = TestConnectionProvider.getInstance();
+    final ConnectionProvider connectionProvider = new TestConnectionProvider();
     final PositionRepository positionRepository = new PositionRepository(connectionProvider);
 
     @AfterEach

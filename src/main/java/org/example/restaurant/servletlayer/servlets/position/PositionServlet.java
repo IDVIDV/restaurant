@@ -21,10 +21,12 @@ public class PositionServlet extends HttpServlet {
     private PositionService positionService;
 
     @Override
-    public void init() {
-        positionService = new PositionService(PositionValidator.getInstance(),
-                PositionMapper.getInstance(),
-                new PositionRepository(ConnectionProviderImpl.getInstance()));
+    public void init() throws ServletException {
+        positionService = new PositionService(
+                new PositionValidator(),
+                new PositionMapper(),
+                new PositionRepository(new ConnectionProviderImpl())
+        );
     }
 
     @Override

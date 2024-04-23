@@ -8,14 +8,6 @@ import org.example.restaurant.datalayer.entities.User;
 import java.util.Objects;
 
 public class UserMapper {
-    private static final UserMapper INSTANCE = new UserMapper();
-
-    public static UserMapper getInstance() {
-        return INSTANCE;
-    }
-
-    private UserMapper() {
-    }
 
     public User map(AddUserDto addUserDto) {
         if (Objects.isNull(addUserDto)) {

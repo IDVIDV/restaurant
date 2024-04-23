@@ -8,13 +8,8 @@ import java.sql.SQLException;
 
 public class ConnectionProviderImpl implements ConnectionProvider {
     protected final DataSource dataSource;
-    private static final ConnectionProviderImpl CONNECTION_PROVIDER = new ConnectionProviderImpl();
 
-    public static ConnectionProviderImpl getInstance() {
-        return CONNECTION_PROVIDER;
-    }
-
-    private ConnectionProviderImpl() {
+    public ConnectionProviderImpl() {
         InitialContext ic;
         try {
             ic = new InitialContext();

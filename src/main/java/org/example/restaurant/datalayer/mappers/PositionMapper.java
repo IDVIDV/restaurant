@@ -8,14 +8,6 @@ import org.example.restaurant.datalayer.entities.Position;
 import java.util.Objects;
 
 public class PositionMapper {
-    private static final PositionMapper INSTANCE = new PositionMapper();
-
-    public static PositionMapper getInstance() {
-        return INSTANCE;
-    }
-
-    private PositionMapper() {
-    }
 
     public Position map(AddPositionDto addPositionDto) {
         if (Objects.isNull(addPositionDto)) {

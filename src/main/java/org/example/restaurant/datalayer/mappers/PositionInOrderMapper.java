@@ -9,14 +9,9 @@ public class PositionInOrderMapper {
     private final PositionMapper positionMapper;
     private final OrderMapper orderMapper;
 
-    private static final PositionInOrderMapper INSTANCE = new PositionInOrderMapper();
-
-    public static PositionInOrderMapper getInstance() {
-        return INSTANCE;
-    }
-    private PositionInOrderMapper() {
-        positionMapper = PositionMapper.getInstance();
-        orderMapper = OrderMapper.getInstance();
+    public PositionInOrderMapper() {
+        positionMapper = new PositionMapper();
+        orderMapper = new OrderMapper();
     }
 
     public PositionInOrderDto map(PositionInOrder positionInOrder) {

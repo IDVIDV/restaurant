@@ -32,7 +32,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 public class PositionInOrderRepositoryTest {
     final String RESET_TABLE_QUERY = "TRUNCATE position_in_order RESTART IDENTITY CASCADE";
-    final ConnectionProvider connectionProvider = TestConnectionProvider.getInstance();
+    final ConnectionProvider connectionProvider = new TestConnectionProvider();
     final TableRepository tableRepository = new TableRepository(connectionProvider);
     final UserRepository userRepository = new UserRepository(connectionProvider);
     final OrderRepository orderRepository = new OrderRepository(connectionProvider, tableRepository);

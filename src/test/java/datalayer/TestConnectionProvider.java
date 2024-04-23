@@ -9,17 +9,13 @@ import java.sql.SQLException;
 import java.util.Properties;
 
 public class TestConnectionProvider implements ConnectionProvider {
-    private static final TestConnectionProvider CONNECTION_PROVIDER = new TestConnectionProvider();
-
-    public static TestConnectionProvider getInstance() {
-        return CONNECTION_PROVIDER;
-    }
 
     private final String url;
     private final String user;
     private final String pass;
 
-    private TestConnectionProvider() {
+
+    public TestConnectionProvider() {
         Properties properties = new Properties();
         try {
             properties.load(Thread.currentThread().getContextClassLoader()

@@ -6,14 +6,6 @@ import java.time.LocalDate;
 import java.util.Objects;
 
 public class OrderValidator {
-    private static final OrderValidator INSTANCE = new OrderValidator();
-
-    public static OrderValidator getInstance() {
-        return INSTANCE;
-    }
-
-    private OrderValidator() {
-    }
 
     public boolean isCloseUnfinishedValid(CloseUnfinishedOrderDto closeUnfinishedOrderDto) {
         return closeUnfinishedOrderDto.getId() > 0 &&

@@ -33,7 +33,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 public class OrderRepositoryTest {
     final String RESET_TABLE_QUERY = "TRUNCATE \"order\" RESTART IDENTITY CASCADE";
-    final ConnectionProvider connectionProvider = TestConnectionProvider.getInstance();
+    final ConnectionProvider connectionProvider = new TestConnectionProvider();
 
     final UserRepository userRepository = new UserRepository(connectionProvider);
     final TableRepository tableRepository = new TableRepository(connectionProvider);

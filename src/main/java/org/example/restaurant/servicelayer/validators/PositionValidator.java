@@ -7,14 +7,6 @@ import org.example.restaurant.datalayer.entities.Position;
 import java.math.BigDecimal;
 
 public class PositionValidator {
-    private static final PositionValidator INSTANCE = new PositionValidator();
-
-    public static PositionValidator getInstance() {
-        return INSTANCE;
-    }
-
-    private PositionValidator() {
-    }
 
     public boolean isAddValid(AddPositionDto addPositionDto) {
         return !addPositionDto.getPositionName().isEmpty() &&

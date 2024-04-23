@@ -22,7 +22,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 public class TableRepositoryTest {
     final String RESET_TABLE_QUERY = "TRUNCATE \"table\" RESTART IDENTITY CASCADE";
-    final ConnectionProvider connectionProvider = TestConnectionProvider.getInstance();
+    final ConnectionProvider connectionProvider = new TestConnectionProvider();
     final TableRepository tableRepository = new TableRepository(connectionProvider);
 
     @AfterEach

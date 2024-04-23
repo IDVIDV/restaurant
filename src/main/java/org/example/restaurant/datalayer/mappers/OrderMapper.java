@@ -8,13 +8,9 @@ import java.util.Objects;
 
 public class OrderMapper {
     private final TableMapper tableMapper;
-    private static final OrderMapper INSTANCE = new OrderMapper();
 
-    public static OrderMapper getInstance() {
-        return INSTANCE;
-    }
-    private OrderMapper() {
-        tableMapper = TableMapper.getInstance();
+    public OrderMapper() {
+        tableMapper = new TableMapper();
     }
 
     public OrderDto map(Order order) {

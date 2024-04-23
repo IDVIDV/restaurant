@@ -21,9 +21,11 @@ public class DeletePositionServlet extends HttpServlet {
 
     @Override
     public void init() throws ServletException {
-        positionService = new PositionService(PositionValidator.getInstance(),
-                PositionMapper.getInstance(),
-                new PositionRepository(ConnectionProviderImpl.getInstance()));
+        positionService = new PositionService(
+                new PositionValidator(),
+                new PositionMapper(),
+                new PositionRepository(new ConnectionProviderImpl())
+        );
     }
 
     @Override

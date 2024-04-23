@@ -6,14 +6,6 @@ import org.example.restaurant.datalayer.entities.Table;
 import java.util.Objects;
 
 public class TableMapper {
-    private static final TableMapper INSTANCE = new TableMapper();
-
-    public static TableMapper getInstance() {
-        return INSTANCE;
-    }
-
-    private TableMapper() {
-    }
 
     public TableDto map(Table table) {
         if (Objects.isNull(table)) {

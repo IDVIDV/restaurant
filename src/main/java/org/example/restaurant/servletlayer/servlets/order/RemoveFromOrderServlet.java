@@ -27,17 +27,16 @@ public class RemoveFromOrderServlet extends HttpServlet {
 
     @Override
     public void init() throws ServletException {
-        ConnectionProvider connectionProvider = ConnectionProviderImpl.getInstance();
-        TableRepository tableRepository = new TableRepository(connectionProvider);
-        PositionRepository positionRepository = new PositionRepository(connectionProvider);
-        OrderRepository orderRepository = new OrderRepository(connectionProvider, tableRepository);
-        PositionInOrderRepository positionInOrderRepository = new PositionInOrderRepository(connectionProvider,
+        TableRepository tableRepository = new TableRepository(new ConnectionProviderImpl());
+        PositionRepository positionRepository = new PositionRepository(new ConnectionProviderImpl());
+        OrderRepository orderRepository = new OrderRepository(new ConnectionProviderImpl(), tableRepository);
+        PositionInOrderRepository positionInOrderRepository = new PositionInOrderRepository(new ConnectionProviderImpl(),
                 positionRepository, orderRepository);
 
         orderService = new OrderService(
-                OrderValidator.getInstance(),
-                OrderMapper.getInstance(),
-                PositionInOrderMapper.getInstance(),
+                new OrderValidator(),
+                new OrderMapper(),
+                new PositionInOrderMapper(),
                 positionRepository,
                 orderRepository,
                 positionInOrderRepository
