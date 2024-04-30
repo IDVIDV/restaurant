@@ -14,9 +14,12 @@ import java.util.List;
 
 public class PositionRepository {
     private static final String TABLE_NAME = "position";
-    private static final String SELECT_ALL_QUERY = "SELECT * FROM " + TABLE_NAME;
-    private static final String SELECT_ALL_BY_NAME_QUERY = "SELECT * FROM " + TABLE_NAME + " WHERE position_name LIKE (?)";
-    private static final String SELECT_BY_ID_QUERY = "SELECT * FROM " + TABLE_NAME + " WHERE id_position = (?)";
+    private static final String SELECT_ALL_QUERY = "SELECT id_position, position_name, price, weight, protein," +
+            " fat, carbohydrate, vegan, ingredients FROM " + TABLE_NAME;
+    private static final String SELECT_ALL_BY_NAME_QUERY = "SELECT id_position, position_name, price, weight, protein," +
+            " fat, carbohydrate, vegan, ingredients FROM " + TABLE_NAME + " WHERE position_name LIKE (?)";
+    private static final String SELECT_BY_ID_QUERY = "SELECT id_position, position_name, price, weight, protein," +
+            " fat, carbohydrate, vegan, ingredients FROM " + TABLE_NAME + " WHERE id_position = (?)";
     private static final String ADD_QUERY = "INSERT INTO " + TABLE_NAME + " VALUES (DEFAULT,(?),(?),(?),(?),(?),(?),(?),(?))";
     private static final String UPDATE_QUERY = "UPDATE " + TABLE_NAME + " SET position_name = (?), " +
             "price = (?), weight = (?), protein = (?), fat = (?), carbohydrate = (?), vegan = (?), ingredients = (?) " +

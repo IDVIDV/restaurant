@@ -14,8 +14,9 @@ import java.util.List;
 
 public class TableRepository {
     private static final String TABLE_NAME = "\"table\"";
-    private static final String SELECT_ALL_QUERY = "SELECT * FROM " + TABLE_NAME;
-    private static final String SELECT_BY_ID_QUERY = "SELECT * FROM " + TABLE_NAME + " WHERE id_table = (?)";
+    private static final String SELECT_ALL_QUERY = "SELECT id_table, table_number, capacity FROM " + TABLE_NAME;
+    private static final String SELECT_BY_ID_QUERY = "SELECT id_table, table_number, capacity FROM " + TABLE_NAME +
+            " WHERE id_table = (?)";
     private static final String ADD_QUERY = "INSERT INTO " + TABLE_NAME + " VALUES (DEFAULT,(?),(?))";
     private static final String UPDATE_QUERY = "UPDATE " + TABLE_NAME + " SET table_number = (?), capacity = (?) " +
             "WHERE id_table = (?)";

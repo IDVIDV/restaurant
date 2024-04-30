@@ -15,11 +15,12 @@ import java.util.Objects;
 
 public class OrderRepository {
     private static final String TABLE_NAME = "\"order\"";
-    private static final String SELECT_ALL_QUERY = "SELECT * FROM " + TABLE_NAME;
-    private static final String SELECT_FINISHED_BY_USER_ID_QUERY = "SELECT * FROM " + TABLE_NAME +
-            " WHERE finished = true AND user_id = (?)";
-    private static final String SELECT_UNFINISHED_BY_USER_ID_QUERY = "SELECT * FROM " + TABLE_NAME +
-            " WHERE finished = false AND user_id = (?)";
+    private static final String SELECT_ALL_QUERY = "SELECT id_order, user_id, table_id, order_date, finished FROM " +
+            TABLE_NAME;
+    private static final String SELECT_FINISHED_BY_USER_ID_QUERY = "SELECT id_order, user_id, table_id, order_date," +
+            " finished FROM " + TABLE_NAME + " WHERE finished = true AND user_id = (?)";
+    private static final String SELECT_UNFINISHED_BY_USER_ID_QUERY = "SELECT id_order, user_id, table_id, order_date," +
+            " finished FROM " + TABLE_NAME + " WHERE finished = false AND user_id = (?)";
     private static final String SELECT_BY_ID_QUERY = "SELECT * FROM " + TABLE_NAME + " WHERE id_order = (?)";
     private static final String ADD_UNFINISHED_QUERY = "INSERT INTO " + TABLE_NAME + " VALUES (DEFAULT,(?),(?),(?),(?))";
     private static final String UPDATE_QUERY = "UPDATE " + TABLE_NAME + " SET user_id = (?), table_id = (?), " +

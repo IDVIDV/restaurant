@@ -14,11 +14,14 @@ import java.util.List;
 
 public class PositionInOrderRepository {
     private static final String TABLE_NAME = "position_in_order";
-    private static final String SELECT_ALL_QUERY = "SELECT * FROM " + TABLE_NAME;
-    private static final String SELECT_ALL_BY_ORDER_ID_QUERY = "SELECT * FROM " + TABLE_NAME + " WHERE order_id = (?)";
-    private static final String SELECT_BY_ID_QUERY = "SELECT * FROM " + TABLE_NAME + " WHERE id_pio = (?)";
-    private static final String SELECT_BY_ORDER_AND_POSITION_ID_QUERY = "SELECT * FROM " + TABLE_NAME +
-            " WHERE order_id = (?) AND position_id = (?)";
+    private static final String SELECT_ALL_QUERY = "SELECT id_pio, position_id, order_id, position_count FROM " +
+            TABLE_NAME;
+    private static final String SELECT_ALL_BY_ORDER_ID_QUERY = "SELECT id_pio, position_id, order_id, position_count FROM " +
+            TABLE_NAME + " WHERE order_id = (?)";
+    private static final String SELECT_BY_ID_QUERY = "SELECT id_pio, position_id, order_id, position_count FROM " +
+            TABLE_NAME + " WHERE id_pio = (?)";
+    private static final String SELECT_BY_ORDER_AND_POSITION_ID_QUERY = "SELECT id_pio, position_id, order_id, position_count FROM " +
+            TABLE_NAME + " WHERE order_id = (?) AND position_id = (?)";
     private static final String ADD_QUERY = "INSERT INTO " + TABLE_NAME + " VALUES (DEFAULT,(?),(?),(?))";
     private static final String UPDATE_QUERY = "UPDATE " + TABLE_NAME + " SET position_id = (?), order_id = (?), " +
             "position_count = (?) WHERE id_pio = (?)";
