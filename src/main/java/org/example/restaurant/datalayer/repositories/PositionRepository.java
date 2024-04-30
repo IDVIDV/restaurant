@@ -3,6 +3,8 @@ package org.example.restaurant.datalayer.repositories;
 import org.example.restaurant.datalayer.ConnectionProvider;
 import org.example.restaurant.datalayer.entities.Position;
 import org.example.restaurant.datalayer.exceptions.DataBaseException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -13,6 +15,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class PositionRepository {
+    private static final Logger logger = LoggerFactory.getLogger(PositionRepository.class);
     private static final String TABLE_NAME = "position";
     private static final String SELECT_ALL_QUERY = "SELECT id_position, position_name, price, weight, protein," +
             " fat, carbohydrate, vegan, ingredients FROM " + TABLE_NAME;
@@ -43,6 +46,7 @@ public class PositionRepository {
             }
 
         } catch (SQLException e) {
+            logger.error(e.getMessage());
             throw new DataBaseException(e.getMessage());
         }
 
@@ -63,6 +67,7 @@ public class PositionRepository {
             }
 
         } catch (SQLException e) {
+            logger.error(e.getMessage());
             throw new DataBaseException(e.getMessage());
         }
 
@@ -84,6 +89,7 @@ public class PositionRepository {
             }
 
         } catch (SQLException e) {
+            logger.error(e.getMessage());
             throw new DataBaseException(e.getMessage());
         }
 
@@ -104,6 +110,7 @@ public class PositionRepository {
             }
 
         } catch (SQLException e) {
+            logger.error(e.getMessage());
             throw new DataBaseException(e.getMessage());
         }
 
@@ -123,6 +130,7 @@ public class PositionRepository {
             }
 
         } catch (SQLException e) {
+            logger.error(e.getMessage());
             throw new DataBaseException(e.getMessage());
         }
 
@@ -137,6 +145,7 @@ public class PositionRepository {
 
             return statement.executeUpdate() == 1;
         } catch (SQLException e) {
+            logger.error(e.getMessage());
             throw new DataBaseException(e.getMessage());
         }
     }
@@ -155,6 +164,7 @@ public class PositionRepository {
             position.setVegan(resultSet.getBoolean("vegan"));
             position.setIngredients(resultSet.getString("ingredients"));
         } catch (SQLException e) {
+            logger.error(e.getMessage());
             throw new DataBaseException(e.getMessage());
         }
 

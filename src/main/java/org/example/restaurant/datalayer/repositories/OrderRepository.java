@@ -3,6 +3,8 @@ package org.example.restaurant.datalayer.repositories;
 import org.example.restaurant.datalayer.ConnectionProvider;
 import org.example.restaurant.datalayer.entities.Order;
 import org.example.restaurant.datalayer.exceptions.DataBaseException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -14,6 +16,7 @@ import java.util.List;
 import java.util.Objects;
 
 public class OrderRepository {
+    private static final Logger logger = LoggerFactory.getLogger(OrderRepository.class);
     private static final String TABLE_NAME = "\"order\"";
     private static final String SELECT_ALL_QUERY = "SELECT id_order, user_id, table_id, order_date, finished FROM " +
             TABLE_NAME;
@@ -46,6 +49,7 @@ public class OrderRepository {
             }
 
         } catch (SQLException e) {
+            logger.error(e.getMessage());
             throw new DataBaseException(e.getMessage());
         }
 
@@ -67,6 +71,7 @@ public class OrderRepository {
             }
 
         } catch (SQLException e) {
+            logger.error(e.getMessage());
             throw new DataBaseException(e.getMessage());
         }
 
@@ -88,6 +93,7 @@ public class OrderRepository {
             }
 
         } catch (SQLException e) {
+            logger.error(e.getMessage());
             throw new DataBaseException(e.getMessage());
         }
 
@@ -109,6 +115,7 @@ public class OrderRepository {
             }
 
         } catch (SQLException e) {
+            logger.error(e.getMessage());
             throw new DataBaseException(e.getMessage());
         }
 
@@ -133,6 +140,7 @@ public class OrderRepository {
             }
 
         } catch (SQLException e) {
+            logger.error(e.getMessage());
             throw new DataBaseException(e.getMessage());
         }
 
@@ -153,6 +161,7 @@ public class OrderRepository {
             }
 
         } catch (SQLException e) {
+            logger.error(e.getMessage());
             throw new DataBaseException(e.getMessage());
         }
 
@@ -181,6 +190,7 @@ public class OrderRepository {
             order.setOrderDate(resultSet.getDate("order_date"));
             order.setFinished(resultSet.getBoolean("finished"));
         } catch (SQLException e) {
+            logger.error(e.getMessage());
             throw new DataBaseException(e.getMessage());
         }
 

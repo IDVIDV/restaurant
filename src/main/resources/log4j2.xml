@@ -1,0 +1,16 @@
+<Configuration>
+    <Appenders>
+        <File fileName="logs/db.log" name="dbExceptions">
+            <PatternLayout>
+                <Pattern>
+                    [%p] [%d] Class: %C; Msg: %m%n
+                </Pattern>
+            </PatternLayout>
+        </File>
+    </Appenders>
+    <Loggers>
+        <Root level="error">
+            <AppenderRef ref="dbExceptions"></AppenderRef>
+        </Root>
+    </Loggers>
+</Configuration>

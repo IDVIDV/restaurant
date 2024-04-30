@@ -3,6 +3,8 @@ package org.example.restaurant.datalayer.repositories;
 import org.example.restaurant.datalayer.ConnectionProvider;
 import org.example.restaurant.datalayer.entities.User;
 import org.example.restaurant.datalayer.exceptions.DataBaseException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -11,8 +13,8 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
-
 public class UserRepository {
+    private static final Logger logger = LoggerFactory.getLogger(UserRepository.class);
     private static final String TABLE_NAME = "\"user\"";
     private static final String SELECT_ALL_QUERY = "SELECT id_user, login, password, phone_number, role FROM " +
             TABLE_NAME;
@@ -42,6 +44,7 @@ public class UserRepository {
             }
 
         } catch (SQLException e) {
+            logger.error(e.getMessage());
             throw new DataBaseException(e.getMessage());
         }
 
@@ -63,6 +66,7 @@ public class UserRepository {
             }
 
         } catch (SQLException e) {
+            logger.error(e.getMessage());
             throw new DataBaseException(e.getMessage());
         }
 
@@ -84,6 +88,7 @@ public class UserRepository {
             }
 
         } catch (SQLException e) {
+            logger.error(e.getMessage());
             throw new DataBaseException(e.getMessage());
         }
 
@@ -108,6 +113,7 @@ public class UserRepository {
             }
 
         } catch (SQLException e) {
+            logger.error(e.getMessage());
             throw new DataBaseException(e.getMessage());
         }
 
@@ -128,6 +134,7 @@ public class UserRepository {
             }
 
         } catch (SQLException e) {
+            logger.error(e.getMessage());
             throw new DataBaseException(e.getMessage());
         }
 
@@ -142,6 +149,7 @@ public class UserRepository {
 
             return statement.executeUpdate() == 1;
         } catch (SQLException e) {
+            logger.error(e.getMessage());
             throw new DataBaseException(e.getMessage());
         }
     }
@@ -156,6 +164,7 @@ public class UserRepository {
             user.setPhoneNumber(resultSet.getString("phone_number"));
             user.setRole(resultSet.getString("role"));
         } catch (SQLException e) {
+            logger.error(e.getMessage());
             throw new DataBaseException(e.getMessage());
         }
 

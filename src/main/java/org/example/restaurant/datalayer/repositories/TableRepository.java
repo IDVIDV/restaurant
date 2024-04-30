@@ -3,6 +3,8 @@ package org.example.restaurant.datalayer.repositories;
 import org.example.restaurant.datalayer.ConnectionProvider;
 import org.example.restaurant.datalayer.entities.Table;
 import org.example.restaurant.datalayer.exceptions.DataBaseException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -13,6 +15,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class TableRepository {
+    private static final Logger logger = LoggerFactory.getLogger(TableRepository.class);
     private static final String TABLE_NAME = "\"table\"";
     private static final String SELECT_ALL_QUERY = "SELECT id_table, table_number, capacity FROM " + TABLE_NAME;
     private static final String SELECT_BY_ID_QUERY = "SELECT id_table, table_number, capacity FROM " + TABLE_NAME +
@@ -39,6 +42,7 @@ public class TableRepository {
             }
 
         } catch (SQLException e) {
+            logger.error(e.getMessage());
             throw new DataBaseException(e.getMessage());
         }
 
@@ -60,6 +64,7 @@ public class TableRepository {
             }
 
         } catch (SQLException e) {
+            logger.error(e.getMessage());
             throw new DataBaseException(e.getMessage());
         }
 
@@ -84,6 +89,7 @@ public class TableRepository {
             }
 
         } catch (SQLException e) {
+            logger.error(e.getMessage());
             throw new DataBaseException(e.getMessage());
         }
 
@@ -104,6 +110,7 @@ public class TableRepository {
             }
 
         } catch (SQLException e) {
+            logger.error(e.getMessage());
             throw new DataBaseException(e.getMessage());
         }
 
@@ -118,6 +125,7 @@ public class TableRepository {
 
             return statement.executeUpdate() == 1;
         } catch (SQLException e) {
+            logger.error(e.getMessage());
             throw new DataBaseException(e.getMessage());
         }
     }
@@ -130,6 +138,7 @@ public class TableRepository {
             table.setTableNumber(resultSet.getInt("table_number"));
             table.setCapacity(resultSet.getInt("capacity"));
         } catch (SQLException e) {
+            logger.error(e.getMessage());
             throw new DataBaseException(e.getMessage());
         }
 

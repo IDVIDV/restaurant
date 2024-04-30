@@ -3,6 +3,8 @@ package org.example.restaurant.datalayer.repositories;
 import org.example.restaurant.datalayer.ConnectionProvider;
 import org.example.restaurant.datalayer.entities.PositionInOrder;
 import org.example.restaurant.datalayer.exceptions.DataBaseException;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -13,6 +15,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class PositionInOrderRepository {
+    private static final Logger logger = LoggerFactory.getLogger(PositionInOrderRepository.class);
     private static final String TABLE_NAME = "position_in_order";
     private static final String SELECT_ALL_QUERY = "SELECT id_pio, position_id, order_id, position_count FROM " +
             TABLE_NAME;
@@ -50,6 +53,7 @@ public class PositionInOrderRepository {
             }
 
         } catch (SQLException e) {
+            logger.error(e.getMessage());
             throw new DataBaseException(e.getMessage());
         }
 
@@ -71,6 +75,7 @@ public class PositionInOrderRepository {
             }
 
         } catch (SQLException e) {
+            logger.error(e.getMessage());
             throw new DataBaseException(e.getMessage());
         }
 
@@ -92,6 +97,7 @@ public class PositionInOrderRepository {
             }
 
         } catch (SQLException e) {
+            logger.error(e.getMessage());
             throw new DataBaseException(e.getMessage());
         }
 
@@ -114,6 +120,7 @@ public class PositionInOrderRepository {
             }
 
         } catch (SQLException e) {
+            logger.error(e.getMessage());
             throw new DataBaseException(e.getMessage());
         }
 
@@ -138,6 +145,7 @@ public class PositionInOrderRepository {
             }
 
         } catch (SQLException e) {
+            logger.error(e.getMessage());
             throw new DataBaseException(e.getMessage());
         }
 
@@ -158,6 +166,7 @@ public class PositionInOrderRepository {
             }
 
         } catch (SQLException e) {
+            logger.error(e.getMessage());
             throw new DataBaseException(e.getMessage());
         }
 
@@ -172,6 +181,7 @@ public class PositionInOrderRepository {
 
             return statement.executeUpdate() == 1;
         } catch (SQLException e) {
+            logger.error(e.getMessage());
             throw new DataBaseException(e.getMessage());
         }
     }
@@ -187,6 +197,7 @@ public class PositionInOrderRepository {
             positionInOrder.setPosition(positionRepository.getById(positionInOrder.getPositionId()));
             positionInOrder.setOrder(orderRepository.getById(positionInOrder.getOrderId()));
         } catch (SQLException e) {
+            logger.error(e.getMessage());
             throw new DataBaseException(e.getMessage());
         }
 
